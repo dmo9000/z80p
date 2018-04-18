@@ -13,6 +13,7 @@
 #include <time.h>
 #include "zextest.h"
 #include "z80emu.h"
+#include "ansitty.h"
 
 #define Z80_CPU_SPEED           4000000   /* In Hz. */
 #define CYCLES_PER_STEP         (Z80_CPU_SPEED / 50)
@@ -25,7 +26,7 @@ int main (int argc, char *argv[])
 	time_t	start, stop;
     int i = 1;
 
-    ansitty_init();
+  ansitty_init();
 
 	start = time(NULL);
     while (i < argc) {
@@ -33,10 +34,11 @@ int main (int argc, char *argv[])
             i++;
             }
 	stop = time(NULL);
-	printf("Execution of all modules in %d second(s).\n",
-		(int) (stop - start));
+	printf("Execution of all modules in %d second(s).\n", (int) (stop - start));
 
-        return EXIT_SUCCESS;
+
+
+  return EXIT_SUCCESS;
 }
 
 /* Emulate "zexdoc.com" or "zexall.com". */
