@@ -1,3 +1,16 @@
+This code has been patched to use libansicanvas which is part of my ansiutils project. 
+To this end, instead of the CP/M BIOS emulation sending output to the controlling tty, 
+it sends the output to a VT100/ANSI emulation buffer which is then displayed via SDL2. 
+
+The goal is to create a reference platform nominally compatible with Z80Pack and run
+unaltered Z80Pack CP/M 1.x/2.x images with output going to the SDL2 display rather than 
+controlling tty as Z80Pack does. 
+
+Thanks go to Lin Ke-Fong for the Z80 emulation and to Udo Munk for Z80Pack.
+
+Original author's README follows below. 
+
+------
 z80emu
 Version 1.1.2
 
