@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "ansicanvas.h"
 #include "gfx_sdl.h"
-#include "rawfont.h"
+#include "bmf.h"
 
 ANSICanvas *canvas = NULL;
 BitmapFont *myfont = NULL;

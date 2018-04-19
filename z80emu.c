@@ -6,12 +6,17 @@
  * This code is free, do whatever you want with it.
  */
 
+#include <assert.h>
 #include <string.h>
+#include <stdio.h>
 #include "z80emu.h"
 #include "z80user.h"
 #include "instructions.h"
 #include "macros.h"
 #include "tables.h"
+
+//size_t strlen(const char *s);
+char *gets(char *s);
 
 /* Indirect (HL) or prefixed indexed (IX + d) and (IY + d) memory operands are
  * encoded using the 3 bits "110" (0x06).
@@ -801,7 +806,7 @@ emulate_next_instruction:
 
                         case ADD_INDIRECT_HL: {
 
-                                int     x;
+                                int     x = 0;
 
                                 READ_INDIRECT_HL(x);
                                 ADD(x);
@@ -828,7 +833,7 @@ emulate_next_instruction:
 
                         case ADC_INDIRECT_HL: {
 
-                                int     x;
+                                int     x = 0;
 
                                 READ_INDIRECT_HL(x);
                                 ADC(x);
@@ -855,7 +860,7 @@ emulate_next_instruction:
 
                         case SUB_INDIRECT_HL: {
 
-                                int     x;
+                                int     x = 0;
 
                                 READ_INDIRECT_HL(x);
                                 SUB(x);
@@ -882,7 +887,7 @@ emulate_next_instruction:
 
                         case SBC_INDIRECT_HL: {
 
-                                int     x;
+                                int     x = 0;
 
                                 READ_INDIRECT_HL(x);
                                 SBC(x);
@@ -909,7 +914,7 @@ emulate_next_instruction:
 
                         case AND_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 READ_INDIRECT_HL(x);
                                 AND(x);
@@ -936,7 +941,7 @@ emulate_next_instruction:
 
                         case OR_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 READ_INDIRECT_HL(x);
                                 OR(x);
@@ -963,7 +968,7 @@ emulate_next_instruction:
 
                         case XOR_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 READ_INDIRECT_HL(x);
                                 XOR(x);
@@ -990,7 +995,7 @@ emulate_next_instruction:
 
                         case CP_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 READ_INDIRECT_HL(x);
                                 CP(x);
@@ -1007,7 +1012,7 @@ emulate_next_instruction:
 
                         case INC_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 if (registers == state->register_table) {
 
@@ -1043,7 +1048,7 @@ emulate_next_instruction:
 
                         case DEC_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 if (registers == state->register_table) {
 
@@ -1283,7 +1288,7 @@ emulate_next_instruction:
 
                         case ADD_HL_RR: {
 
-                                int     x, y, z, f, c;
+                                int     x = 0, y, z, f, c;
 
                                 x = HL_IX_IY;
                                 y = RR(P(opcode));
@@ -1312,7 +1317,7 @@ emulate_next_instruction:
 
                         case ADC_HL_RR: {
 
-                                int     x, y, z, f, c;
+                                int x = 0, y, z, f, c;
                         
                                 x = HL;
                                 y = RR(P(opcode));
@@ -1343,7 +1348,7 @@ emulate_next_instruction:
 
                         case SBC_HL_RR: {
 
-                                int     x, y, z, f, c;
+                                int x = 0, y, z, f, c;
                         
                                 x = HL;
                                 y = RR(P(opcode));
@@ -1376,7 +1381,7 @@ emulate_next_instruction:
 
                         case INC_RR: {
 
-                                int     x;
+                                int x = 0;
 
                                 x = RR(P(opcode));
                                 x++;
@@ -1390,7 +1395,7 @@ emulate_next_instruction:
 
                         case DEC_RR: {
 
-                                int     x;
+                                int x = 0;
 
                                 x = RR(P(opcode));
                                 x--;
@@ -1483,7 +1488,7 @@ emulate_next_instruction:
 
                         case RLC_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 if (registers == state->register_table) {
 
@@ -1527,7 +1532,7 @@ emulate_next_instruction:
 
                         case RL_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 if (registers == state->register_table) {
 
@@ -1570,7 +1575,7 @@ emulate_next_instruction:
 
                         case RRC_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 if (registers == state->register_table) {
 
@@ -1613,7 +1618,7 @@ emulate_next_instruction:
 
                         case RR_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 if (registers == state->register_table) {
 
@@ -1656,7 +1661,7 @@ emulate_next_instruction:
 
                         case SLA_INDIRECT_HL: {
 
-                                int     x;      
+                                int x = 0;      
 
                                 if (registers == state->register_table) {
 
@@ -1699,7 +1704,7 @@ emulate_next_instruction:
 
                         case SLL_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 if (registers == state->register_table) {
 
@@ -1742,7 +1747,7 @@ emulate_next_instruction:
 
                         case SRA_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 if (registers == state->register_table) {
 
@@ -1785,7 +1790,7 @@ emulate_next_instruction:
 
                         case SRL_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 if (registers == state->register_table) {
 
@@ -1821,7 +1826,7 @@ emulate_next_instruction:
 
                         case RLD_RRD: {
 
-                                int     x, y;
+                                int x = 0, y;
 
                                 READ_BYTE(HL, x);
                                 y = (A & 0xf0) << 8;
@@ -1846,7 +1851,7 @@ emulate_next_instruction:
 
                         case BIT_B_R: {
 
-                                int     x;
+                                int x = 0;
 
                                 x = R(Z(opcode)) & (1 << Y(opcode));
                                 F = (x ? 0 : Z80_Z_FLAG | Z80_P_FLAG)
@@ -1913,7 +1918,7 @@ emulate_next_instruction:
 
                         case SET_B_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 if (registers == state->register_table) {
 
@@ -1956,7 +1961,7 @@ emulate_next_instruction:
 
                         case RES_B_INDIRECT_HL: {
 
-                                int     x;
+                                int x = 0;
 
                                 if (registers == state->register_table) {
 
@@ -2122,11 +2127,15 @@ emulate_next_instruction:
                                 READ_NN(nn);
                                 if (nn == 5) {
                                     unsigned int r_DE, r_HL;
-                                    unsigned char v_DE, v_HL;
+                                    unsigned char v_DE = 0, v_HL = 0;
                                     unsigned char kbc = 0;
                                     unsigned char kbb[80];
-                                    unsigned char *kbbp = &kbb+1;
+                                    unsigned char *kbbp = (unsigned char *) &kbb+1;
                                     int i = 0;
+
+																		assert(!v_DE);
+																		assert(!v_HL);
+
                                     /* BDOS call number is passed in register C */
                                     switch (state->registers.byte[Z80_C]) {
                                         case BDOS_C_READSTR:
@@ -2139,15 +2148,15 @@ emulate_next_instruction:
                                             //printf("v_HL(?) = %u\n", v_HL);
                                             
                                             /* FIXME: ugly hack, but it will do for now */ 
-                                            gets(kbbp);
-                                            WRITE_BYTE(r_DE+1, (unsigned char) strlen(kbbp-1));
-                                            for (i = 2; i < 2 + strlen(kbbp)-1; i++) {
+                                            gets((char *) kbbp);
+                                            WRITE_BYTE(r_DE+1, (unsigned char) strlen((const char *) kbbp-1));
+                                            for (i = 2; i < 2 + strlen((const char *) kbbp)-1; i++) {
                                                 WRITE_BYTE(r_DE+i, kbbp[i-2]);
                                                 }
 
                                             /* length of the string read goes into DE */
                                             state->registers.byte[Z80_D] = 0x0;
-                                            state->registers.byte[Z80_E] = (unsigned char) strlen(kbbp)-1;
+                                            state->registers.byte[Z80_E] = (unsigned char) strlen((const char *)kbbp)-1;
                                            break;
                                         case BDOS_C_READ:
                                             /* printf("<C_READ:%u>\n", state->registers.byte[Z80_C]); */
@@ -2258,7 +2267,8 @@ emulate_next_instruction:
 
                         case IN_A_N: {
 
-                                int     n;
+                                int     n = 0;
+																assert(!n);
 
                                 READ_N(n);
                                 Z80_INPUT_BYTE(n, A);
@@ -2271,7 +2281,7 @@ emulate_next_instruction:
 
                         case IN_R_C: {
 
-                                int     x;                                           
+                                int x = 0;                                           
                                 Z80_INPUT_BYTE(C, x);
                                 if (Y(opcode) != INDIRECT_HL) 
 
@@ -2294,7 +2304,7 @@ emulate_next_instruction:
 
                         case INI_IND: {
 
-                                int     x, f;
+                                int x = 0, f;
 
                                 Z80_INPUT_BYTE(C, x);
                                 WRITE_BYTE(HL, x);
@@ -2325,7 +2335,7 @@ emulate_next_instruction:
 
                         case INIR_INDR: {
 
-                                int     d, b, hl, x, f;
+                                int     d, b, hl, x = 0, f;
 
 #ifdef Z80_HANDLE_SELF_MODIFYING_CODE
 
@@ -2407,7 +2417,8 @@ emulate_next_instruction:
 
                         case OUT_N_A: {
 
-                                int     n;
+                                int     n = 0;
+																assert(!n);
 
                                 READ_N(n);
                                 Z80_OUTPUT_BYTE(n, A);
@@ -2420,7 +2431,8 @@ emulate_next_instruction:
 
                         case OUT_C_R: {
 
-                                int     x;
+                                int x = 0;
+																assert(!x);
 
                                 x = Y(opcode) != INDIRECT_HL
                                         ? R(Y(opcode))
@@ -2435,7 +2447,7 @@ emulate_next_instruction:
 
                         case OUTI_OUTD: {
 
-                                int     x, f;
+                                int x = 0, f;
 
                                 READ_BYTE(HL, x);
                                 Z80_OUTPUT_BYTE(C, x);
