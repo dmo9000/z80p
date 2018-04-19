@@ -1,6 +1,8 @@
 #include <assert.h>
+#include <stdlib.h>
 #include "ansicanvas.h"
 #include "gfx_sdl.h"
+#include "rawfont.h"
 
 ANSICanvas *canvas = NULL;
 BitmapFont *myfont = NULL;
