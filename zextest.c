@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <assert.h>
 #include "zextest.h"
 #include "z80emu.h"
 #include "sysbus.h"
@@ -30,7 +31,13 @@ int main (int argc, char *argv[])
     int i = 1;
 
     if (!sysbus_init()) {
-        printf("(no bootable media detected)\n");
+        printf("error initializing system bus\n");
+        assert(NULL);
+        }
+
+    if (!sysbus_disks_init()) {
+        printf("error initializing disk controller\n");
+        assert(NULL);
         }
 
     start = time(NULL);
