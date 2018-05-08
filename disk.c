@@ -9,6 +9,7 @@ DiskDrive drives[MAX_DRIVES];
 
 int disk_init()
 {
+    unsigned char data[4096];
     off_t offset = 0;
     int id = 0;
     int r = 0;
@@ -29,17 +30,10 @@ int disk_init()
             fh = fopen(drives[id].diskfilename, "rb");
             assert(fh);
             fseek(fh, 0, SEEK_SET);
-            printf("backingstore = 0x%08lx\n", drives[id].backingstore);
             for (offset = 0; offset < drives[id].size; offset += SECTOR_SIZE) {
                 unsigned char *ptr = drives[id].backingstore;
-                printf("offset = %u\n", offset);
-                printf("backingstore + offset = 0x%08lx\n", ptr);
-                ptr  += offset;
-                memory_dump(ptr, 0, 256);
+                ptr += offset;
                 r = fread(ptr, SECTOR_SIZE, 1, fh);
-                printf("r = %u\n", r);
-                memory_dump(ptr, 0, 256);
-                assert(NULL);
             }
             assert(offset == drives[id].size);
             printf(" ... OK\n");
@@ -64,10 +58,9 @@ int disk_readfromdrivetomemory(ZEXTEST *context, int driveid, uint16_t tgt_addr,
     /* ensure read is within limits of device */
     assert(src_offset < drives[driveid].size);
     assert(src_offset + bytes <= drives[driveid].size);
-    
-    memory_dump(drives[driveid].backingstore, 0, 256);
-    assert(NULL);
+    //memory_dump(drives[driveid].backingstore, 0, 256);
     memcpy(context->memory + tgt_addr, drives[driveid].backingstore + src_offset, bytes);
+    //memory_dump(context->memory + tgt_addr, 0, 256);
     return 1;
 }
 

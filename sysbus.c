@@ -34,44 +34,29 @@ int sysbus_ReadFromDriveToMemory(ZEXTEST *context, int driveid, uint16_t tgt_add
 
     disk_readfromdrivetomemory(context, driveid, tgt_addr, src_offset, bytes);
 
-
-    memory_dump(context->memory, 0, 256);
-
     return 0;
 
 }
 
-void memory_dump(unsigned char *ptr, off_t start, uint16_t size)
+void memory_dump(unsigned char *ptr, uint16_t addr, uint16_t size)
 {
-    uint16_t addr = start;
     int i = 0;
-    printf("memory_dump(0x%08lx, 0x%04x, 0x%04x)\n", ptr, start, size);
+    int c = 0;
 
-    while (addr <= start+size) {
-        printf("0x%08x %c ", addr, ':');
-        for (i = 0 ; i < 16; i++) {
-            ptr = (char *) ptr + addr + i;
-            printf("%02x ", ptr[0]);
-            ptr++;
-        }
-        ptr -= 16;
-        printf(" %c ", ':');
+    printf("memory_dump(0x%08x, 0x%04x, 0x%04x)\n", ptr, addr, size);
 
-        for (i = 0 ; i < 16; i++) {
-            ptr = (char *) ptr + addr + i;
-            if (ptr[0] >= 32 && ptr[0] <= 127) {
-                printf("%c", ptr[0]);
-            } else {
-                printf(".");
+    for (i = 0; i < size; i++) {
+        if (!(c % 16)) {
+            printf("0x%08x: ", addr);
             }
-            ptr++;
+        printf("%02x ", ptr[i]);
+        addr++;
+        c++;
+        if (!(c % 16)) {
+            printf("\n");
+            }
         }
-        /* line wrap */
-        printf("\n");
-
-        addr += 16;
-    }
-
+    printf("\n");
 }
 
 
