@@ -81,10 +81,19 @@ int ansitty_putc(unsigned char c)
         gfx_sdl_expose();
         }
 
-    assert(r);
+    if (r == NULL) {
+        printf("error: couldn't get raster %u\n", tty_y);
+        assert(r);
+        }
+
     assert(r->chardata);
     assert(r->bytes == 80);
-    assert(tty_x < 80);
+
+    if (tty_x >= 80) {
+        printf("error: ttyx >= 80 == %u\n", tty_x);
+        assert(tty_x < 80);
+        }
+
     r->chardata[tty_x] = c;
     /* FIXME: this is incredibly slow. add a method to gfx_sdl just to update a particular byte or region */
     gfx_sdl_canvas_render_xy(canvas, myfont, tty_x, tty_y);

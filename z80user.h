@@ -124,8 +124,8 @@ extern "C" {
 
 #define Z80_INPUT_BYTE(port, x)                                         \
 {                                                                       \
-        printf("Z80_INPUT_BYTE(0x%02X, %02X)\n", port, x);              \
         SystemCall((ZEXTEST *) context);				                \
+        printf("- %u: Z80_INPUT_BYTE(0x%02X, %02X)\n", time(NULL), port, x);              \
 }
 
 #define Z80_OUTPUT_BYTE(port, x)                                        \

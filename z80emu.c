@@ -2148,6 +2148,7 @@ emulate_next_instruction:
                     //printf("v_HL(?) = %u\n", v_HL);
 
                     /* FIXME: ugly hack, but it will do for now */
+                    printf("gets()\n");
                     gets((char *) kbbp);
                     WRITE_BYTE(r_DE+1, (unsigned char) strlen((const char *) kbbp-1));
                     for (i = 2; i < 2 + strlen((const char *) kbbp)-1; i++) {
