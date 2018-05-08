@@ -43,13 +43,14 @@ int main (int argc, char *argv[])
     start = time(NULL);
     if (argc > 1) {
         while (i < argc) {
+            context.state.pc = 0x100;
             emulate(argv[i]);
             i++;
         }
     } else {
         printf("Attempting to boot from disks/drivea.disk ...\n");
         Z80Reset(&context.state);
-        context.state.pc = 0x100;
+        context.state.pc = 0x0;
         total = 0.0;
 
         sysbus_bootloader(&context);
