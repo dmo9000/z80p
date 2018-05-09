@@ -129,6 +129,7 @@ extern "C" {
         printf("- %llu: Z80_INPUT_BYTE(0x%02X, %02X)\n",                \
                 (unsigned long long) time(NULL), port, x);              \
         while (port == 0 && x == 0) {                                   \
+            ansitty_processinput();                                     \
             }                                                           \
 }
 
