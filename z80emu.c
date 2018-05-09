@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 #include "z80emu.h"
 #include "z80user.h"
 #include "instructions.h"
@@ -2117,58 +2118,9 @@ emulate_next_instruction:
 
         case CALL_NN: {
 
-
-#define BDOS_C_READ     1
-#define BDOS_C_WRITE    2
-#define BDOS_C_READSTR  10
-
             int     nn;
 
             READ_NN(nn);
-            if (nn == 5) {
-                unsigned int r_DE, r_HL;
-                unsigned char v_DE = 0, v_HL = 0;
-                unsigned char kbc = 0;
-                unsigned char kbb[80];
-                unsigned char *kbbp = (unsigned char *) &kbb+1;
-                int i = 0;
-
-                assert(!v_DE);
-                assert(!v_HL);
-
-                /* BDOS call number is passed in register C */
-                switch (state->registers.byte[Z80_C]) {
-                case BDOS_C_READSTR:
-                    r_DE = (state->registers.byte[Z80_D] << 8) + state->registers.byte[Z80_E];
-                    r_HL = (state->registers.byte[Z80_H] << 8) + state->registers.byte[Z80_L];
-                    //printf("<C_READSTR:DE=0x%04x, HL=0x%04x>\n", r_DE, r_HL);
-                    READ_BYTE(r_HL, v_HL);
-                    READ_BYTE(r_DE, v_DE);
-                    //printf("v_DE(*) = %u\n", v_DE);
-                    //printf("v_HL(?) = %u\n", v_HL);
-
-                    /* FIXME: ugly hack, but it will do for now */
-                    printf("gets()\n");
-                    gets((char *) kbbp);
-                    WRITE_BYTE(r_DE+1, (unsigned char) strlen((const char *) kbbp-1));
-                    for (i = 2; i < 2 + strlen((const char *) kbbp)-1; i++) {
-                        WRITE_BYTE(r_DE+i, kbbp[i-2]);
-                    }
-
-                    /* length of the string read goes into DE */
-                    state->registers.byte[Z80_D] = 0x0;
-                    state->registers.byte[Z80_E] = (unsigned char) strlen((const char *)kbbp)-1;
-                    break;
-                case BDOS_C_READ:
-                    /* printf("<C_READ:%u>\n", state->registers.byte[Z80_C]); */
-                    kbc = getchar();
-                    state->registers.byte[Z80_L] = kbc;
-                    break;
-                default:
-                    break;
-                }
-            }
-
             PUSH(pc);
             pc = nn;
             elapsed_cycles++;

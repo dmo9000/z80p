@@ -17,7 +17,7 @@
 #include "sysbus.h"
 #include "ansitty.h"
 
-#define Z80_CPU_SPEED           32000000   /* In Hz. */
+#define Z80_CPU_SPEED           8000000   /* In Hz. */
 #define CYCLES_PER_STEP         (Z80_CPU_SPEED / 50)
 #define MAXIMUM_STRING_LENGTH   100
 

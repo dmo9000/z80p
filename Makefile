@@ -17,7 +17,7 @@ zextest.o: zextest.c zextest.h z80emu.h z80config.h
 OBJECT_FILES = zextest.o z80emu.o sysbus.o ansitty.o disk.o 
 
 zextest: $(OBJECT_FILES)
-	$(CC) -L/usr/lib $(OBJECT_FILES) -L/usr/lib -lansicanvas -lansisdlcanvas -lSDL2 -lm -o $@
+	$(CC) -L/usr/lib64 -L/usr/lib $(OBJECT_FILES) -L/usr/lib -lansicanvas -lansisdlcanvas -lSDL2 -lm -o $@
 
 clean:
 	rm -f *.o zextest maketables

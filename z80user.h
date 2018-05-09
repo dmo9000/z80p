@@ -7,6 +7,7 @@
  * This code is free, do whatever you want with it.
  */
 
+
 #ifndef __Z80USER_INCLUDED__
 #define __Z80USER_INCLUDED__
 
@@ -125,12 +126,15 @@ extern "C" {
 #define Z80_INPUT_BYTE(port, x)                                         \
 {                                                                       \
         SystemCall((ZEXTEST *) context);				                \
-        printf("- %u: Z80_INPUT_BYTE(0x%02X, %02X)\n", time(NULL), port, x);              \
+        printf("- %llu: Z80_INPUT_BYTE(0x%02X, %02X)\n",                \
+                (unsigned long long) time(NULL), port, x);              \
+        while (port == 0 && x == 0) {                                   \
+            }                                                           \
 }
 
 #define Z80_OUTPUT_BYTE(port, x)                                        \
 {                                                                       \
-        printf("Z80_OUTPUT_BYTE(0x%02X, %02X)\n", port, x);              \
+        printf("Z80_OUTPUT_BYTE(0x%02X, %02X)\n", port, x);             \
         ((ZEXTEST *) context)->is_done = !0; 				            \
         number_cycles = 0;                                              \
 }

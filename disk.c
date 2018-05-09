@@ -9,7 +9,6 @@ DiskDrive drives[MAX_DRIVES];
 
 int disk_init()
 {
-    unsigned char data[4096];
     off_t offset = 0;
     int id = 0;
     int r = 0;
@@ -34,6 +33,7 @@ int disk_init()
                 unsigned char *ptr = drives[id].backingstore;
                 ptr += offset;
                 r = fread(ptr, SECTOR_SIZE, 1, fh);
+                assert(r);
             }
             assert(offset == drives[id].size);
             printf(" ... OK\n");

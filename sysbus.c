@@ -43,7 +43,7 @@ void memory_dump(unsigned char *ptr, uint16_t addr, uint16_t size)
     int i = 0;
     int c = 0;
 
-    printf("memory_dump(0x%08x, 0x%04x, 0x%04x)\n", ptr, addr, size);
+    printf("memory_dump(0x%08lx, 0x%04x, 0x%04x)\n", (unsigned long) ptr, addr, size);
 
     for (i = 0; i < size; i++) {
         if (!(c % 16)) {
