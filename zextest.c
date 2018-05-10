@@ -15,6 +15,7 @@
 #include "zextest.h"
 #include "z80emu.h"
 #include "sysbus.h"
+#include "ttyinput.h"
 #include "ansitty.h"
 
 #define Z80_CPU_SPEED           8000000   /* In Hz. */
@@ -45,7 +46,6 @@ int main (int argc, char *argv[])
         while (i < argc) {
             context.state.pc = 0x100;
             emulate(argv[i]);
-            ansitty_processinput();
             i++;
         }
     } else {
@@ -58,7 +58,6 @@ int main (int argc, char *argv[])
 
         while (!context.is_done) {
             total += Z80Emulate(&context.state, CYCLES_PER_STEP, &context);
-            ansitty_processinput();
         } 
 
     }

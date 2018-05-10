@@ -1,0 +1,2 @@
+int tty_processinput();
+

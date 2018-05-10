@@ -1,6 +1,6 @@
 #include <SDL2/SDL.h>
 
-int ansitty_processinput()
+int tty_processinput()
 {
   SDL_Event event;
   /* Poll for events. SDL_PollEvent() returns 0 when there are no  */
