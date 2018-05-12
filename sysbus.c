@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <time.h>
 #include "zextest.h"
 #include "sysbus.h"
 #include "ansitty.h"
+#include "ttyinput.h"
 #include "disk.h"
 
 int sysbus_init()
@@ -60,4 +62,23 @@ void memory_dump(unsigned char *ptr, uint16_t addr, uint16_t size)
 }
 
 
+
+
+int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)                                             
+{                                                                       
+        SystemCall((ZEXTEST *) context);                                
+        printf("- %llu: _Z80_INPUT_BYTE(0x%02X, %02X)\n",                
+                (unsigned long long) time(NULL), port, x);              
+        while (port == 0 && x == 0) {                                   
+            tty_processinput();                                         
+            }                                                           
+        return 0;
+}
+
+int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)                                       
+{                                                                       
+        printf("_Z80_OUTPUT_BYTE(0x%02X, %02X)\n", port, x);             
+        ((ZEXTEST *) context)->is_done = !0;                            
+        return 0;
+}
 

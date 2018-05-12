@@ -126,18 +126,16 @@ extern "C" {
 
 #define Z80_INPUT_BYTE(port, x)                                         \
 {                                                                       \
-        SystemCall((ZEXTEST *) context);				                \
         printf("- %llu: Z80_INPUT_BYTE(0x%02X, %02X)\n",                \
                 (unsigned long long) time(NULL), port, x);              \
-        while (port == 0 && x == 0) {                                   \
-            tty_processinput();                                         \
-            }                                                           \
+        _Z80_INPUT_BYTE(context, port, x);                              \
 }
 
 #define Z80_OUTPUT_BYTE(port, x)                                        \
 {                                                                       \
-        printf("Z80_OUTPUT_BYTE(0x%02X, %02X)\n", port, x);             \
-        ((ZEXTEST *) context)->is_done = !0; 				            \
+        printf("- %llu: Z80_OUTPUT_BYTE(0x%02X, %02X)\n",               \
+                (unsigned long long) time(NULL), port, x);              \
+        _Z80_OUTPUT_BYTE(context, port, x);                             \
         number_cycles = 0;                                              \
 }
 
