@@ -66,12 +66,20 @@ int tty_processinput()
                     goto do_character;
                 }
                 /* 0-9 */
-                if (key->keysym.scancode >= 30 && key->keysym.scancode <= 39) {
-                    ascii_code = 47 + (key->keysym.scancode - 30);
+                if (key->keysym.scancode >= 30 && key->keysym.scancode < 39) {
+                    ascii_code = 49 + (key->keysym.scancode - 30);
                     goto do_character;
                 }
 
             switch (key->keysym.scancode) {
+                case SDL_SCANCODE_0:
+                    ascii_code = '0';
+                    goto do_character;
+                    break;
+                case SDL_SCANCODE_PERIOD:
+                    ascii_code = '.';
+                    goto do_character;
+                    break;
                 case SDL_SCANCODE_SEMICOLON:
                     ascii_code = ';';
                     goto do_character;
@@ -90,6 +98,14 @@ int tty_processinput()
                 }
 
             switch (key->keysym.scancode) {
+                case SDL_SCANCODE_8:
+                    ascii_code = '*';
+                    goto do_character;
+                    break;
+                case SDL_SCANCODE_PERIOD:
+                    ascii_code = '>';
+                    goto do_character;
+                    break;
                 case SDL_SCANCODE_SEMICOLON:
                     ascii_code = ':';
                     goto do_character;
@@ -103,7 +119,7 @@ int tty_processinput()
             }
             printf("key->keysym.scancode = %u\n", key->keysym.scancode);
 do_character:
-            printf("-> [%c]\n", ascii_code);
+            //printf("-> [%c]\n", ascii_code);
             /* append code to buffer if not overflowed */
             if (kbip <= KB_BUFSIZE) {
                 keybuf[kbip] = ascii_code;

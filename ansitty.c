@@ -54,7 +54,8 @@ int ansitty_putc(unsigned char c)
     if (c == '\n') {
         tty_x = 0; 
         tty_y ++;
-        return 1;
+        //return 1;
+        c = 0; 
         }
 
     r = canvas_get_raster(canvas, tty_y);
@@ -82,6 +83,11 @@ int ansitty_putc(unsigned char c)
         gfx_sdl_expose();
         }
 
+    if (tty_y >= height) {
+        tty_y = height -1;
+        r = canvas_get_raster(canvas, tty_y);
+        }
+
     if (r == NULL) {
         printf("error: couldn't get raster %u\n", tty_y);
         assert(r);
@@ -95,6 +101,9 @@ int ansitty_putc(unsigned char c)
         assert(tty_x < 80);
         }
 
+    if (c == 0) {
+        return 1;
+        }
     r->chardata[tty_x] = c;
     /* FIXME: this is incredibly slow. add a method to gfx_sdl just to update a particular byte or region */
     gfx_sdl_canvas_render_xy(canvas, myfont, tty_x, tty_y);

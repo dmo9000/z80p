@@ -110,7 +110,7 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
             c = tty_processinput();
             }
         c = tty_popkeybuf();
-        printf("Returning [%c]\n", c);
+       // printf("Returning [%c]\n", c);
         context->state.registers.byte[Z80_A] = c;
         return 1;
         break;
@@ -120,11 +120,18 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         assert(Selected_Drive);
         assert(Selected_Drive->io_in_progress);
         Selected_Drive->io_in_progress = false;
-        printf("    + READSEC_END: DMA=0x%04X reading drive %u, track %u, sector %u\n", DMA, current_drive_id, Selected_Drive->selected_track, Selected_Drive->selected_sector);
+        printf("    + RDWR_END: DMA=0x%04X reading/writing drive %u, track %u, sector %u\n", DMA, current_drive_id, Selected_Drive->selected_track, Selected_Drive->selected_sector);
+        context->state.registers.byte[Z80_A] = 0;
+        return 0;
+        break;
+    case 0xF0:
+        printf("/* HYDROGEN BUS DETECTION! */\n");
+        //context->state.registers.byte[Z80_A] = 0x21;
+        context->state.registers.byte[Z80_A] = 0x00;
         return 0;
         break;
     default:
-        printf("UNHANDLED PORT: 0x%04x, 0x%02x\n", port, x);
+        printf("_Z80_INPUT_BYTE: UNHANDLED PORT: 0x%04x, 0x%02x\n", port, x);
         exit(1);
         break;
     }
@@ -173,7 +180,10 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         /* DRIVE OPERATION */
         Selected_Drive = GetDriveReference(current_drive_id);
         assert(Selected_Drive);
-        //assert(!Selected_Drive->io_in_progress);
+        if (Selected_Drive->io_in_progress) {
+            //printf("IO_IN_PROGRESS on drive %u\n", current_drive_id);
+            //assert(!Selected_Drive->io_in_progress);
+            }
         pos = (((long)Selected_Drive->selected_track) * ((long)Selected_Drive->num_spt) + Selected_Drive->selected_sector - 1) << 7;
         switch (context->state.registers.byte[Z80_A]) {
         case 0x00:
@@ -181,7 +191,7 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
             printf("    + READSEC_START: DMA=0x%04X reading drive %u, track %u, sector %u\n", DMA, current_drive_id, Selected_Drive->selected_track, Selected_Drive->selected_sector);
             Selected_Drive->io_in_progress = true;
             rc = sysbus_ReadFromDriveToMemory(context, current_drive_id, DMA, pos, SECTOR_SIZE);
-            memory_dump(context->memory + DMA, DMA, 128);
+            //memory_dump(context->memory + DMA, DMA, 128);
             break;
         case 0x01:
             /* WRITE OPERATION */
@@ -210,7 +220,7 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         return 1;
         break;
     default:
-        printf("UNHANDLED PORT: 0x%04x, 0x%02x\n", port, x);
+        printf("_Z80_OUTPUT_BYTE: UNHANDLED PORT: 0x%04x, 0x%02x\n", port, x);
         exit(1);
         break;
     }
