@@ -69,6 +69,7 @@ warm_boot:
 
     while (1) { 
         tty_processinput();
+        usleep(20000);
         }
 
     return EXIT_SUCCESS;

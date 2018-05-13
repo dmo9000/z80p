@@ -83,11 +83,29 @@ void memory_dump(unsigned char *ptr, uint16_t addr, uint16_t size)
 
 int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
 {
+    uint8_t c = 0;
     //SystemCall((ZEXTEST *) context);
     printf("     _Z80_INPUT_BYTE(0x%02X, %02X)\n", port, x);
     fflush(NULL);
 
     switch (port) {
+    case 0x00:
+        /* CONST - console status, return 0x00 if no character is ready, otherwise return 0xFF */
+ 		context->state.registers.byte[Z80_A] = 0x00;
+        return 1;
+        break;
+    case 0x01:
+        c = tty_processinput();
+        while (!c) {
+            ansitty_expose();
+            usleep(20000);
+            c = tty_processinput();
+            }
+        c = tty_popkeybuf();
+        printf("Returning [%c]\n", c);
+        context->state.registers.byte[Z80_A] = c;
+        return 1;
+        break;
     case 0x0E:
         /* DISK IO - acknowledge controller */
         Selected_Drive = GetDriveReference(current_drive_id);
@@ -109,7 +127,7 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
 int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
 {
     printf("    _Z80_OUTPUT_BYTE(0x%02X, %02X)\n", port, x);
-    ((ZEXTEST *) context)->is_done = !0;
+    //((ZEXTEST *) context)->is_done = !0;
     fflush(NULL);
 
     switch (port) {

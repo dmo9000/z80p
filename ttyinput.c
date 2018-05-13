@@ -4,6 +4,23 @@
 
 bool shift_engaged = false;
 
+#define KB_BUFSIZE  80
+
+unsigned char keybuf[KB_BUFSIZE];
+uint8_t kbip = 0;
+
+uint8_t tty_popkeybuf()
+{
+    uint8_t popped = 0;
+    popped = keybuf[0];
+    if (kbip) {
+        kbip --;
+        memmove(&keybuf, &keybuf+1, kbip);
+        keybuf[kbip] = '\0';
+        }
+    return popped;
+}
+
 int tty_processinput()
 {
     SDL_Event event;
@@ -19,6 +36,10 @@ int tty_processinput()
         switch( event.type ) {
         case SDL_KEYDOWN:
             switch (key->keysym.scancode) {
+            case SDL_SCANCODE_RETURN:
+                ascii_code = '\r';
+                goto do_character;
+                break;
             case SDL_SCANCODE_LSHIFT:
             case SDL_SCANCODE_RSHIFT:
                 printf("[SHIFT_ON]\n");
@@ -55,6 +76,13 @@ int tty_processinput()
 do_character:
             printf("-> [%c]\n", ascii_code);
             /* append code to buffer if not overflowed */
+            if (kbip <= KB_BUFSIZE) {
+                keybuf[kbip] = ascii_code;
+                kbip++;
+                } else {
+                printf("+++ keyboard buffer overflow\n");
+                assert(NULL);
+                }
             return 1;
             break;
         case SDL_KEYUP:

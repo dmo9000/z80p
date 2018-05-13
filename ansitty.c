@@ -77,6 +77,7 @@ int ansitty_putc(unsigned char c)
         tty_y --;
         /* force refresh of entire canvas */
         canvas_reindex(canvas);
+        gfx_sdl_clear();
         gfx_sdl_canvas_render(canvas, myfont);
         gfx_sdl_expose();
         }
@@ -100,5 +101,11 @@ int ansitty_putc(unsigned char c)
     gfx_sdl_expose();
     tty_x ++;
     return 1;
+}
+
+void ansitty_expose()
+{
+    gfx_sdl_expose();
+
 }
 
