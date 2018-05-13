@@ -54,6 +54,8 @@ int tty_processinput()
             printf("key->keysym.scancode = %u\n", key->keysym.scancode);
 do_character:
             printf("-> [%c]\n", ascii_code);
+            /* append code to buffer if not overflowed */
+            return 1;
             break;
         case SDL_KEYUP:
             switch (key->keysym.scancode) {
@@ -77,6 +79,7 @@ do_character:
         }
     }
 
-    return 1;
+   //printf("/* NO KEYBOARD IO */\n");
+    return 0;
 }
 

@@ -126,17 +126,17 @@ extern "C" {
 
 #define Z80_INPUT_BYTE(port, x)                                         \
 {                                                                       \
-        printf("- %llu: Z80_INPUT_BYTE(0x%02X, %02X)\n",                \
+        printf("  - %llu: Z80_INPUT_BYTE(0x%02X, %02X)\n",                \
                 (unsigned long long) time(NULL), port, x);              \
         _Z80_INPUT_BYTE(context, port, x);                              \
 }
 
 #define Z80_OUTPUT_BYTE(port, x)                                        \
 {                                                                       \
-        printf("- %llu: Z80_OUTPUT_BYTE(0x%02X, %02X)\n",               \
+        printf("  - %llu: Z80_OUTPUT_BYTE(0x%02X, %02X)\n",               \
                 (unsigned long long) time(NULL), port, x);              \
         _Z80_OUTPUT_BYTE(context, port, x);                             \
-        number_cycles = 0;                                              \
+        /*number_cycles = 0; */                                           \
 }
 
 #ifdef __cplusplus

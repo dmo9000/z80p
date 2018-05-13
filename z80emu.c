@@ -266,6 +266,7 @@ static int emulate (Z80_STATE * state,
         int     instruction;
 
         Z80_FETCH_BYTE(pc, opcode);
+        printf("Z80: 0x%04x, 0x%02x\n", pc, opcode);
         pc++;
 
 start_emulation:

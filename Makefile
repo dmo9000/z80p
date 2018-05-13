@@ -19,5 +19,9 @@ OBJECT_FILES = zextest.o z80emu.o sysbus.o ansitty.o disk.o ttyinput.o
 zextest: $(OBJECT_FILES)
 	$(CC) -L/usr/lib64 -L/usr/lib $(OBJECT_FILES) -L/usr/lib -lansicanvas -lansisdlcanvas -lSDL2 -lm -o $@
 
+dumpldr:
+	dd if=disks/drivea.dsk of=disks/bootldr.bin bs=1 count=256
+	z80dasm -t -a -l -g 0 disks/bootldr.bin | more
+
 clean:
-	rm -f *.o zextest maketables
+	rm -f *.o zextest maketables disks/bootldr.bin
