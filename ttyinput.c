@@ -36,6 +36,11 @@ int tty_processinput()
         switch( event.type ) {
         case SDL_KEYDOWN:
             switch (key->keysym.scancode) {
+            case SDL_SCANCODE_SPACE:
+                ascii_code = ' ';
+                goto do_character;
+                break;
+            
             case SDL_SCANCODE_RETURN:
                 ascii_code = '\r';
                 goto do_character;
@@ -65,12 +70,36 @@ int tty_processinput()
                     ascii_code = 48 + (key->keysym.scancode - 30);
                     goto do_character;
                 }
+
+            switch (key->keysym.scancode) {
+                case SDL_SCANCODE_SEMICOLON:
+                    ascii_code = ';';
+                    goto do_character;
+                    break;
+                default:
+                    ascii_code = '\0';
+                    goto do_character;
+                    break;
+                }
+
             case true:
                 /* A-Z */
                 if (key->keysym.scancode >= 4 && key->keysym.scancode <= 29) {
                     ascii_code = 65 + (key->keysym.scancode - 4);
                     goto do_character;
                 }
+
+            switch (key->keysym.scancode) {
+                case SDL_SCANCODE_SEMICOLON:
+                    ascii_code = ':';
+                    goto do_character;
+                    break;
+                default:
+                    ascii_code = '\0';
+                    goto do_character;
+                    break;
+                }
+
             }
             printf("key->keysym.scancode = %u\n", key->keysym.scancode);
 do_character:
