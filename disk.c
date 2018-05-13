@@ -19,7 +19,7 @@ int disk_init()
     for (id = 0; id < MAX_DRIVES; id++) {
         memset(&drives[id], 0, sizeof(DiskDrive));
         memset(&drives[id].diskfilename, 0, 256);
-        snprintf((char *) &drives[id].diskfilename, 255, "disks/drive%c.dsk", 97 + id);
+        snprintf((char *) &drives[id].diskfilename, 255, "disks/Drive%c.disk", 48 + id);
         if (!lstat(drives[id].diskfilename, &statbuf)) {
             drives[id].size = statbuf.st_size;
 
@@ -27,6 +27,10 @@ int disk_init()
                 case 256256: 
                     drives[id].num_tracks = 77;
                     drives[id].num_spt = 26;
+                    break;
+                case 4177920:
+                    drives[id].num_tracks = 255;
+                    drives[id].num_spt = 128;
                     break;
                 default:
                     printf("+++ unrecognized disk format\n");
@@ -88,6 +92,25 @@ int disk_readfromdrivetomemory(ZEXTEST *context, int driveid, uint16_t tgt_addr,
     assert(src_offset + bytes <= drives[driveid].size);
     //memory_dump(drives[driveid].backingstore, 0, 256);
     memcpy(context->memory + tgt_addr, drives[driveid].backingstore + src_offset, bytes);
+    //memory_dump(context->memory + tgt_addr, 0, 256);
+    return 1;
+}
+
+
+int disk_writefrommemorytodrive(ZEXTEST *context, int driveid, uint16_t src_addr, off_t tgt_addr, uint16_t bytes)
+{
+    printf("disk_writefrommemorytodrive(0x%08lx, %u, 0x%04x, 0x%08lx, %u)\n", (long unsigned int) context->memory, driveid, (unsigned int) src_addr, tgt_addr, bytes);
+    /* ensure drive has valid size */
+    assert(drives[driveid].size);
+    /* ensure drive is present */
+    assert(drives[driveid].present);
+    /* ensure backingstore is present */
+    assert(drives[driveid].backingstore);
+    /* ensure read is within limits of device */
+    assert(tgt_addr < drives[driveid].size);
+    assert(tgt_addr + bytes <= drives[driveid].size);
+    //memory_dump(drives[driveid].backingstore, 0, 256);
+    memcpy(drives[driveid].backingstore + tgt_addr, context->memory + src_addr, bytes);
     //memory_dump(context->memory + tgt_addr, 0, 256);
     return 1;
 }

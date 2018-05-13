@@ -67,7 +67,7 @@ int tty_processinput()
                 }
                 /* 0-9 */
                 if (key->keysym.scancode >= 30 && key->keysym.scancode <= 39) {
-                    ascii_code = 48 + (key->keysym.scancode - 30);
+                    ascii_code = 47 + (key->keysym.scancode - 30);
                     goto do_character;
                 }
 

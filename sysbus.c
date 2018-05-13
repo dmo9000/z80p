@@ -46,16 +46,25 @@ int sysbus_bootloader(ZEXTEST *context)
 }
 
 
-int sysbus_ReadFromDriveToMemory(ZEXTEST *context, int driveid, uint16_t tgt_addr, off_t src_offset, uint16_t bytes)
+int sysbus_ReadFromDriveToMemory(ZEXTEST *context, int driveid, uint16_t tgt_addr, off_t src_addr, uint16_t bytes)
 {
-    printf("sysbus_ReadFromDriveToMemory(driveid=%d, tgt_addr=0x%04x, src_offset=0x%08x, %u)\n",
-           driveid, tgt_addr, (unsigned int) src_offset, bytes);
+    printf("sysbus_ReadFromDriveToMemory(driveid=%d, tgt_addr=0x%04x, src_addr=0x%08x, %u)\n",
+           driveid, tgt_addr, (unsigned int) src_addr, bytes);
 
-    disk_readfromdrivetomemory(context, driveid, tgt_addr, src_offset, bytes);
+    disk_readfromdrivetomemory(context, driveid, tgt_addr, src_addr, bytes);
 
     return 0;
 
 }
+int sysbus_WriteFromMemoryToDrive(ZEXTEST *context, int driveid, uint16_t src_addr, off_t tgt_addr, uint16_t bytes)
+{
+    printf("sysbus_ReadFromDriveToMemory(driveid=%d, tgt_addr=0x%04x, src_addr=0x%08x, %u)\n",
+           driveid, tgt_addr, (unsigned int) src_addr, bytes);
+
+    disk_writefrommemorytodrive(context, driveid, src_addr, tgt_addr, bytes);
+    return 0;
+}
+
 
 void memory_dump(unsigned char *ptr, uint16_t addr, uint16_t size)
 {
@@ -161,10 +170,10 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         return 1;
         break;
     case 0x0D:
-        /* READSEC */
+        /* DRIVE OPERATION */
         Selected_Drive = GetDriveReference(current_drive_id);
         assert(Selected_Drive);
-        assert(!Selected_Drive->io_in_progress);
+        //assert(!Selected_Drive->io_in_progress);
         pos = (((long)Selected_Drive->selected_track) * ((long)Selected_Drive->num_spt) + Selected_Drive->selected_sector - 1) << 7;
         switch (context->state.registers.byte[Z80_A]) {
         case 0x00:
@@ -173,6 +182,12 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
             Selected_Drive->io_in_progress = true;
             rc = sysbus_ReadFromDriveToMemory(context, current_drive_id, DMA, pos, SECTOR_SIZE);
             memory_dump(context->memory + DMA, DMA, 128);
+            break;
+        case 0x01:
+            /* WRITE OPERATION */
+            printf("    + WRITESEC_START: DMA=0x%04X writing drive %u, track %u, sector %u\n", DMA, current_drive_id, Selected_Drive->selected_track, Selected_Drive->selected_sector);
+            Selected_Drive->io_in_progress = true;
+            rc = sysbus_WriteFromMemoryToDrive(context, current_drive_id, DMA, pos, SECTOR_SIZE);
             break;
         default:
             /* OTHER OPERATION */
