@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
+#include <stdbool.h>
 #include "zextest.h"
 #include "z80emu.h"
 #include "sysbus.h"
@@ -51,11 +52,13 @@ int main (int argc, char *argv[])
     } else {
         printf("Attempting to boot from disks/drivea.disk ...\n");
         Z80Reset(&context.state);
+
         context.state.pc = 0x0;
         total = 0.0;
 
         sysbus_bootloader(&context);
 
+warm_boot:
         while (!context.is_done) {
             total += Z80Emulate(&context.state, CYCLES_PER_STEP, &context);
         } 
@@ -63,6 +66,10 @@ int main (int argc, char *argv[])
     }
     stop = time(NULL);
     printf("Execution of all modules in %d second(s).\n", (int) (stop - start));
+
+    while (1) { 
+        tty_processinput();
+        }
 
     return EXIT_SUCCESS;
 }

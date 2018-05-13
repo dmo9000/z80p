@@ -13,6 +13,11 @@ struct _disk_drive {
                     char diskfilename[256];
                     bool present;
                     size_t size;
+                    uint8_t num_tracks;
+                    uint8_t num_spt;
+                    uint16_t selected_track;
+                    uint16_t selected_sector;
+                    bool io_in_progress;
                     unsigned char *backingstore;
                     };
 

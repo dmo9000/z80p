@@ -6,6 +6,7 @@
 #define SECTOR_SIZE     128
 
 DiskDrive drives[MAX_DRIVES];
+DiskDrive *Current_Drive = NULL;
 
 int disk_init()
 {
@@ -21,6 +22,18 @@ int disk_init()
         snprintf((char *) &drives[id].diskfilename, 255, "disks/drive%c.dsk", 97 + id);
         if (!lstat(drives[id].diskfilename, &statbuf)) {
             drives[id].size = statbuf.st_size;
+
+            switch (drives[id].size) {
+                case 256256: 
+                    drives[id].num_tracks = 77;
+                    drives[id].num_spt = 26;
+                    break;
+                default:
+                    printf("+++ unrecognized disk format\n");
+                    assert(NULL);
+                    break;
+                }
+
             drives[id].present = true;
             printf(" * detected drive %c: %s, size = %lu", 65 + id, drives[id].diskfilename, drives[id].size);
             drives[id].backingstore = malloc(drives[id].size);
@@ -43,7 +56,22 @@ int disk_init()
         }
     }
 
+
+    for (id = 0; id < MAX_DRIVES ; id++) {
+        if (drives[id].present) {
+            printf("DEFAULT DRIVE SLOT SELECTED: %u\n", id);
+            Current_Drive = &drives[id];
+            return detected;
+            }
+        }
+
     return detected;
+}
+
+DiskDrive *GetDriveReference(int id) 
+{
+    assert(drives[id].present);
+    return &drives[id];
 }
 
 int disk_readfromdrivetomemory(ZEXTEST *context, int driveid, uint16_t tgt_addr, off_t src_offset, uint16_t bytes)
