@@ -26,3 +26,6 @@ typedef struct _disk_drive DiskDrive;
 
 int disk_init();
 int disk_readfromdrivetomemory(ZEXTEST *context, int driveid, uint16_t tgt_addr, off_t src_offset, uint16_t bytes);
+int disk_writefrommemorytodrive(ZEXTEST *context, int driveid, uint16_t src_addr, off_t tgt_addr, uint16_t bytes);
+DiskDrive *GetDriveReference(int id);
+

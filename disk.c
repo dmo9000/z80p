@@ -75,7 +75,7 @@ int disk_init()
 DiskDrive *GetDriveReference(int id) 
 {
     assert(drives[id].present);
-    return &drives[id];
+    return (DiskDrive *) &drives[id];
 }
 
 int disk_readfromdrivetomemory(ZEXTEST *context, int driveid, uint16_t tgt_addr, off_t src_offset, uint16_t bytes)

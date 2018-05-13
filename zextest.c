@@ -13,6 +13,7 @@
 #include <time.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include "zextest.h"
 #include "z80emu.h"
 #include "sysbus.h"
@@ -58,7 +59,6 @@ int main (int argc, char *argv[])
 
         sysbus_bootloader(&context);
 
-warm_boot:
         while (!context.is_done) {
             total += Z80Emulate(&context.state, CYCLES_PER_STEP, &context);
         } 

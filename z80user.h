@@ -12,6 +12,8 @@
 #ifndef __Z80USER_INCLUDED__
 #define __Z80USER_INCLUDED__
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -123,6 +125,10 @@ extern "C" {
 }
 
 #define Z80_WRITE_WORD_INTERRUPT(address, x)	Z80_WRITE_WORD((address), (x))
+
+extern int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x);
+extern int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x);
+
 
 #define Z80_INPUT_BYTE(port, x)                                         \
 {                                                                       \

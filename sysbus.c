@@ -58,7 +58,7 @@ int sysbus_ReadFromDriveToMemory(ZEXTEST *context, int driveid, uint16_t tgt_add
 }
 int sysbus_WriteFromMemoryToDrive(ZEXTEST *context, int driveid, uint16_t src_addr, off_t tgt_addr, uint16_t bytes)
 {
-    printf("sysbus_ReadFromDriveToMemory(driveid=%d, tgt_addr=0x%04x, src_addr=0x%08x, %u)\n",
+    printf("sysbus_ReadFromDriveToMemory(driveid=%d, tgt_addr=0x%04lx, src_addr=0x%08x, %u)\n",
            driveid, tgt_addr, (unsigned int) src_addr, bytes);
 
     disk_writefrommemorytodrive(context, driveid, src_addr, tgt_addr, bytes);
@@ -116,7 +116,7 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         break;
     case 0x0E:
         /* DISK IO - acknowledge controller */
-        Selected_Drive = GetDriveReference(current_drive_id);
+        Selected_Drive = (DiskDrive *) GetDriveReference(current_drive_id);
         assert(Selected_Drive);
         assert(Selected_Drive->io_in_progress);
         Selected_Drive->io_in_progress = false;
@@ -156,13 +156,13 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         /* SELDSK */
         current_drive_id = context->state.registers.byte[Z80_A];
         printf("    + SELDSK selecting disk 0x%02x\n", current_drive_id);
-        Selected_Drive = GetDriveReference(current_drive_id);
+        Selected_Drive = (DiskDrive *) GetDriveReference(current_drive_id);
         assert(Selected_Drive);
         return 1;
         break;
     case 0x0B:
         /* SETTRK */
-        Selected_Drive = GetDriveReference(current_drive_id);
+        Selected_Drive = (DiskDrive *) GetDriveReference(current_drive_id);
         assert(Selected_Drive);
         printf("    + SETTRK selecting track %u/%u\n", context->state.registers.byte[Z80_A], Selected_Drive->num_tracks);
         Selected_Drive->selected_track = context->state.registers.byte[Z80_A];
@@ -170,7 +170,7 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         break;
     case 0x0C:
         /* SETSEC */
-        Selected_Drive = GetDriveReference(current_drive_id);
+        Selected_Drive = (DiskDrive *) GetDriveReference(current_drive_id);
         assert(Selected_Drive);
         printf("    + SETSEC selecting sector %u/%u\n", context->state.registers.byte[Z80_A], Selected_Drive->num_spt);
         Selected_Drive->selected_sector = context->state.registers.byte[Z80_A];
@@ -178,7 +178,7 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         break;
     case 0x0D:
         /* DRIVE OPERATION */
-        Selected_Drive = GetDriveReference(current_drive_id);
+        Selected_Drive = (DiskDrive *) GetDriveReference(current_drive_id);
         assert(Selected_Drive);
         if (Selected_Drive->io_in_progress) {
             //printf("IO_IN_PROGRESS on drive %u\n", current_drive_id);
