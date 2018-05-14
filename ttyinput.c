@@ -9,6 +9,8 @@ bool shift_engaged = false;
 unsigned char keybuf[KB_BUFSIZE];
 uint8_t kbip = 0;
 
+/* TODO: reimplement as a bunch of tables for easier modification */
+
 uint8_t tty_getbuflen()
 {
     return kbip;
@@ -77,6 +79,10 @@ int tty_processinput()
                 }
 
             switch (key->keysym.scancode) {
+                case SDL_SCANCODE_EQUALS:
+                    ascii_code = '=';
+                    goto do_character;
+                    break;
                 case SDL_SCANCODE_0:
                     ascii_code = '0';
                     goto do_character;
@@ -103,6 +109,10 @@ int tty_processinput()
                 }
 
             switch (key->keysym.scancode) {
+                case SDL_SCANCODE_EQUALS:
+                    ascii_code = '+';
+                    goto do_character;
+                    break;
                 case SDL_SCANCODE_8:
                     ascii_code = '*';
                     goto do_character;

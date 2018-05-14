@@ -17,6 +17,7 @@ extern uint16_t current_y;
 uint16_t last_x; 
 uint16_t last_y; 
 
+extern bool allow_clear;
 
 
 int ansitty_init()
@@ -32,8 +33,11 @@ int ansitty_init()
        exit(1);
        }
 
+    allow_clear = true;
 
     canvas = new_canvas(); 
+    canvas->allow_hard_clear = true;
+    canvas->repaint_entire_canvas = false;
 
     for (int i = 0; i < 24; i++) {
         r = canvas_add_raster(canvas);
@@ -46,19 +50,33 @@ int ansitty_init()
 
 }
 
-int _ansitty_putc(unsigned char c)
+int ansitty_putc(unsigned char c)
 {
+    char outbuffer[2];
     last_x = current_x;
     last_y = current_y;
-    send_byte_to_canvas(canvas, c);
+    //send_byte_to_canvas(canvas, c);
+    outbuffer[0] = c; 
+    if (!ansi_to_canvas(canvas, &outbuffer, 1, 0)) {
+            printf("+++ error!\n");
+            assert(NULL);
+            }
     tty_x = current_x;
     tty_y = current_y;
-    gfx_sdl_canvas_render_xy(canvas, myfont, last_x, last_y);
+
+    if (canvas->repaint_entire_canvas) {
+        printf("FULL CANVAS REFRESH\n");
+        gfx_sdl_canvas_render(canvas, myfont);
+        canvas->repaint_entire_canvas = false; 
+        } else {
+        gfx_sdl_canvas_render_xy(canvas, myfont, last_x, last_y);
+        }
+
     gfx_sdl_expose();
     return 0;
 }
 
-int ansitty_putc(unsigned char c)
+int _ansitty_putc(unsigned char c)
 {
     ANSIRaster *r = NULL;
     ANSIRaster *d = NULL;
@@ -123,7 +141,7 @@ int ansitty_putc(unsigned char c)
         return 1;
         }
     r->chardata[tty_x] = c;
-    send_byte_to_canvas(canvas, c); 
+    //send_byte_to_canvas(canvas, c); 
     /* FIXME: this is incredibly slow. add a method to gfx_sdl just to update a particular byte or region */
     gfx_sdl_canvas_render_xy(canvas, myfont, tty_x, tty_y);
     //gfx_sdl_canvas_render(canvas, myfont); 

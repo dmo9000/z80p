@@ -17,7 +17,7 @@ uint8_t rc = 0;
 
 #define SECTOR_SIZE 128
 
-char *banner = "Z80 REFERENCE PLATFORM V0.1\n\n";
+char *banner = "Z80 REFERENCE PLATFORM V0.1\r\n\r\n";
 
 int sysbus_init()
 {
@@ -93,8 +93,8 @@ void memory_dump(unsigned char *ptr, uint16_t addr, uint16_t size)
 int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
 {
     uint8_t c = 0;
-    printf("     _Z80_INPUT_BYTE(0x%02X, %02X)\n", port, x);
-    fflush(NULL);
+    //printf("     _Z80_INPUT_BYTE(0x%02X, %02X)\n", port, x);
+    //fflush(NULL);
 
     switch (port) {
     case 0x00:
