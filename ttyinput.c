@@ -9,6 +9,11 @@ bool shift_engaged = false;
 unsigned char keybuf[KB_BUFSIZE];
 uint8_t kbip = 0;
 
+uint8_t tty_getbuflen()
+{
+    return kbip;
+}
+
 uint8_t tty_popkeybuf()
 {
     uint8_t popped = 0;

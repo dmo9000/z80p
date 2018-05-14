@@ -93,13 +93,19 @@ void memory_dump(unsigned char *ptr, uint16_t addr, uint16_t size)
 int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
 {
     uint8_t c = 0;
-    //printf("     _Z80_INPUT_BYTE(0x%02X, %02X)\n", port, x);
-    //1fflush(NULL);
+    printf("     _Z80_INPUT_BYTE(0x%02X, %02X)\n", port, x);
+    fflush(NULL);
 
     switch (port) {
     case 0x00:
+        tty_processinput();
+        c = tty_getbuflen();
+        if (!c) {
+            context->state.registers.byte[Z80_A] = 0x00;
+            return 1;
+            }
         /* CONST - console status, return 0x00 if no character is ready, otherwise return 0xFF */
- 		context->state.registers.byte[Z80_A] = 0x00;
+ 		context->state.registers.byte[Z80_A] = 0xff;
         return 1;
         break;
     case 0x01:
