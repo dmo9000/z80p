@@ -10,8 +10,14 @@ BitmapFont *myfont = NULL;
 #define width 80
 #define height 24
 
-int tty_x = 0;
-int tty_y = 0;
+uint16_t tty_x = 0;
+uint16_t tty_y = 0;
+extern uint16_t current_x;
+extern uint16_t current_y;
+uint16_t last_x; 
+uint16_t last_y; 
+
+
 
 int ansitty_init()
 {
@@ -38,6 +44,18 @@ int ansitty_init()
     gfx_sdl_expose();
     return 0;
 
+}
+
+int _ansitty_putc(unsigned char c)
+{
+    last_x = current_x;
+    last_y = current_y;
+    send_byte_to_canvas(canvas, c);
+    tty_x = current_x;
+    tty_y = current_y;
+    gfx_sdl_canvas_render_xy(canvas, myfont, last_x, last_y);
+    gfx_sdl_expose();
+    return 0;
 }
 
 int ansitty_putc(unsigned char c)
@@ -105,8 +123,10 @@ int ansitty_putc(unsigned char c)
         return 1;
         }
     r->chardata[tty_x] = c;
+    send_byte_to_canvas(canvas, c); 
     /* FIXME: this is incredibly slow. add a method to gfx_sdl just to update a particular byte or region */
     gfx_sdl_canvas_render_xy(canvas, myfont, tty_x, tty_y);
+    //gfx_sdl_canvas_render(canvas, myfont); 
     gfx_sdl_expose();
     tty_x ++;
     return 1;
