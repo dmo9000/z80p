@@ -36,12 +36,12 @@ int main (int argc, char *argv[])
     if (!sysbus_init()) {
         printf("error initializing system bus\n");
         assert(NULL);
-        }
+    }
 
     if (!sysbus_disks_init()) {
         printf("error initializing disk controller\n");
         assert(NULL);
-        }
+    }
 
     start = time(NULL);
     if (argc > 1) {
@@ -61,16 +61,16 @@ int main (int argc, char *argv[])
 
         while (!context.is_done) {
             total += Z80Emulate(&context.state, CYCLES_PER_STEP, &context);
-        } 
+        }
 
     }
     stop = time(NULL);
     printf("Execution of all modules in %d second(s).\n", (int) (stop - start));
 
-    while (1) { 
+    while (1) {
         tty_processinput();
         usleep(20000);
-        }
+    }
 
     return EXIT_SUCCESS;
 }

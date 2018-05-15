@@ -24,19 +24,19 @@ int disk_init()
             drives[id].size = statbuf.st_size;
 
             switch (drives[id].size) {
-                case 256256: 
-                    drives[id].num_tracks = 77;
-                    drives[id].num_spt = 26;
-                    break;
-                case 4177920:
-                    drives[id].num_tracks = 255;
-                    drives[id].num_spt = 128;
-                    break;
-                default:
-                    printf("+++ unrecognized disk format\n");
-                    assert(NULL);
-                    break;
-                }
+            case 256256:
+                drives[id].num_tracks = 77;
+                drives[id].num_spt = 26;
+                break;
+            case 4177920:
+                drives[id].num_tracks = 255;
+                drives[id].num_spt = 128;
+                break;
+            default:
+                printf("+++ unrecognized disk format\n");
+                assert(NULL);
+                break;
+            }
 
             drives[id].present = true;
             printf(" * detected drive %c: %s, size = %lu", 65 + id, drives[id].diskfilename, drives[id].size);
@@ -66,13 +66,13 @@ int disk_init()
             printf("DEFAULT DRIVE SLOT SELECTED: %u\n", id);
             Current_Drive = &drives[id];
             return detected;
-            }
         }
+    }
 
     return detected;
 }
 
-DiskDrive *GetDriveReference(int id) 
+DiskDrive *GetDriveReference(int id)
 {
     assert(drives[id].present);
     return (DiskDrive *) &drives[id];

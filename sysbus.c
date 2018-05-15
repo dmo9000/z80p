@@ -28,8 +28,8 @@ int sysbus_init()
     while (ptr[0] != '\0') {
         ansitty_putc(ptr[0]);
         ptr++;
-        }
-    
+    }
+
     return 1;
 
 }
@@ -103,9 +103,9 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         if (!c) {
             context->state.registers.byte[Z80_A] = 0x00;
             return 1;
-            }
+        }
         /* CONST - console status, return 0x00 if no character is ready, otherwise return 0xFF */
- 		context->state.registers.byte[Z80_A] = 0xff;
+        context->state.registers.byte[Z80_A] = 0xff;
         return 1;
         break;
     case 0x01:
@@ -114,9 +114,9 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
             ansitty_expose();
             usleep(2000);
             c = tty_processinput();
-            }
+        }
         c = tty_popkeybuf();
-       // printf("Returning [%c]\n", c);
+        // printf("Returning [%c]\n", c);
         context->state.registers.byte[Z80_A] = c;
         return 1;
         break;
@@ -154,10 +154,10 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
     switch (port) {
     case 0x01:
         /* CONOUT */
-   		//printf("CONOUT->[%c]\n", context->state.registers.byte[Z80_A]);
+        //printf("CONOUT->[%c]\n", context->state.registers.byte[Z80_A]);
         ansitty_putc(context->state.registers.byte[Z80_A]);
         return 1;
-        break;  
+        break;
     case 0x0A:
         /* SELDSK */
         current_drive_id = context->state.registers.byte[Z80_A];
@@ -189,7 +189,7 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         if (Selected_Drive->io_in_progress) {
             //printf("IO_IN_PROGRESS on drive %u\n", current_drive_id);
             //assert(!Selected_Drive->io_in_progress);
-            }
+        }
         pos = (((long)Selected_Drive->selected_track) * ((long)Selected_Drive->num_spt) + Selected_Drive->selected_sector - 1) << 7;
         switch (context->state.registers.byte[Z80_A]) {
         case 0x00:

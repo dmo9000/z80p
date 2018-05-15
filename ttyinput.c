@@ -24,7 +24,7 @@ uint8_t tty_popkeybuf()
         kbip --;
         memmove(&keybuf, &keybuf+1, kbip);
         keybuf[kbip] = '\0';
-        }
+    }
     return popped;
 }
 
@@ -47,7 +47,7 @@ int tty_processinput()
                 ascii_code = ' ';
                 goto do_character;
                 break;
-            
+
             case SDL_SCANCODE_RETURN:
                 ascii_code = '\r';
                 goto do_character;
@@ -78,7 +78,7 @@ int tty_processinput()
                     goto do_character;
                 }
 
-            switch (key->keysym.scancode) {
+                switch (key->keysym.scancode) {
                 case SDL_SCANCODE_EQUALS:
                     ascii_code = '=';
                     goto do_character;
@@ -108,7 +108,7 @@ int tty_processinput()
                     goto do_character;
                 }
 
-            switch (key->keysym.scancode) {
+                switch (key->keysym.scancode) {
                 case SDL_SCANCODE_EQUALS:
                     ascii_code = '+';
                     goto do_character;
@@ -139,10 +139,10 @@ do_character:
             if (kbip <= KB_BUFSIZE) {
                 keybuf[kbip] = ascii_code;
                 kbip++;
-                } else {
+            } else {
                 printf("+++ keyboard buffer overflow\n");
                 assert(NULL);
-                }
+            }
             return 1;
             break;
         case SDL_KEYUP:
@@ -167,7 +167,7 @@ do_character:
         }
     }
 
-   //printf("/* NO KEYBOARD IO */\n");
+    //printf("/* NO KEYBOARD IO */\n");
     return 0;
 }
 
