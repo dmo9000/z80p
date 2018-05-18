@@ -17,7 +17,7 @@ zextest.o: zextest.c zextest.h z80emu.h z80config.h
 OBJECT_FILES = zextest.o z80emu.o sysbus.o ansitty.o disk.o ttyinput.o 
 
 zextest: $(OBJECT_FILES)
-	$(CC) -g -ggdb -L/usr/lib64 -L/usr/lib $(OBJECT_FILES) -L/usr/lib -lansicanvas -lansisdlcanvas -lSDL2 -lm -o $@
+	$(CC) -g -ggdb -pthread -L/usr/lib64 -L/usr/lib $(OBJECT_FILES) -L/usr/lib -lansicanvas -lansisdlcanvas -lSDL2 -lm -o $@
 
 dumpldr:
 	dd if=disks/drivea.dsk of=disks/bootldr.bin bs=1 count=256

@@ -2,6 +2,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
+#include <sys/time.h>
+#include <signal.h>
+#include <pthread.h>
 #include "zextest.h"
 #include "sysbus.h"
 #include "ansitty.h"
@@ -14,16 +17,36 @@ uint8_t current_drive_id = 0;
 uint16_t DMA = 0;
 uint32_t pos = 0;
 uint8_t rc = 0;
+volatile uint16_t clockticks = 0;
+pthread_t clock_thread;
 
 #define SECTOR_SIZE 128
 
 char *banner = "Z80 REFERENCE PLATFORM V0.1\r\n\r\n";
+
+pthread_t clock_thread;
+pthread_t display_thread;
+
+void *sysbus_clockfunction()
+{
+    printf("*** CLOCK STARTED ***\n");
+    while (1) {
+        /* 20000 microseconds, or 200 millseconds */
+        /* TODO: replace with nanosleep */
+        //printf("TICK\n");
+        clockticks++;
+        usleep(20000);
+        }
+}
 
 int sysbus_init()
 {
 
     char *ptr = banner;
     printf("System bus initialization ...\n");
+    pthread_create( &clock_thread, NULL, sysbus_clockfunction, NULL);
+    //pthread_join(clock_thread, NULL); 
+
     ansitty_init();
     while (ptr[0] != '\0') {
         ansitty_putc(ptr[0]);
@@ -31,6 +54,7 @@ int sysbus_init()
     }
 
     return 1;
+
 
 }
 
@@ -134,8 +158,14 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         break;
     case 0xF0:
         printf("/* HYDROGEN BUS DETECTION! */\n");
-        //context->state.registers.byte[Z80_A] = 0x21;
-        context->state.registers.byte[Z80_A] = 0x00;
+        context->state.registers.byte[Z80_A] = 0x21;
+        //context->state.registers.byte[Z80_A] = 0x00;
+        return 0;
+        break;
+    case 0xF1:
+		context->state.registers.byte[Z80_A] = 0; /* SUCCESS */
+		context->state.registers.byte[Z80_H] = (clockticks & 0xff00) >> 8;
+		context->state.registers.byte[Z80_L] = (clockticks & 0x00ff);        
         return 0;
         break;
     default:

@@ -60,7 +60,8 @@ int main (int argc, char *argv[])
         sysbus_bootloader(&context);
 
         while (!context.is_done) {
-            total += Z80Emulate(&context.state, CYCLES_PER_STEP, &context);
+    //        total += Z80Emulate(&context.state, CYCLES_PER_STEP, &context);
+            total += Z80Emulate(&context.state, 0, &context);
         }
 
     }
