@@ -21,6 +21,7 @@
 #include "ansitty.h"
 
 #define Z80_CPU_SPEED           8000000   /* In Hz. */
+//#define Z80_CPU_SPEED           32000000   /* In Hz. */
 #define CYCLES_PER_STEP         (Z80_CPU_SPEED / 50)
 #define MAXIMUM_STRING_LENGTH   100
 
@@ -60,8 +61,8 @@ int main (int argc, char *argv[])
         sysbus_bootloader(&context);
 
         while (!context.is_done) {
-    //        total += Z80Emulate(&context.state, CYCLES_PER_STEP, &context);
-            total += Z80Emulate(&context.state, 0, &context);
+            total += Z80Emulate(&context.state, CYCLES_PER_STEP, &context);
+    //        total += Z80Emulate(&context.state, 0, &context);
         }
 
     }

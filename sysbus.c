@@ -25,7 +25,19 @@ char *banner = "Z80 REFERENCE PLATFORM V0.1\r\n\r\n";
 
 pthread_t clock_thread;
 pthread_t display_thread;
+pthread_t idle_thread;
 pthread_mutex_t display_mutex;
+
+void *sysbus_idle()
+{
+
+    printf("*** IDLE THREAD ***\n");
+    while (1) {
+        sleep(1);
+        printf("*** IDLE TICK ***\n");
+        }
+
+}
 
 void *sysbus_videoupdate()
 {
@@ -71,6 +83,7 @@ int sysbus_init()
 
     pthread_create( &clock_thread, NULL, sysbus_clockfunction, NULL);
     pthread_create( &display_thread, NULL, sysbus_videoupdate, NULL);
+    pthread_create( &idle_thread, NULL, sysbus_idle, NULL);
 
     return 1;
 
