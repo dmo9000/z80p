@@ -90,6 +90,8 @@ int ansitty_putc(unsigned char c)
     last_x = current_x;
     last_y = current_y;
 
+    if (!c) return 0;
+
     /* check if output would cause a scroll before proceeding */
 
         if (current_x > (width  - 1)) {

@@ -32,7 +32,9 @@ void *sysbus_videoupdate()
     printf("*** DISPLAY STARTED ***\n");
     while (1) {
         usleep(50000);
-        if (pthread_mutex_trylock(&display_mutex) == 0) {
+        while (pthread_mutex_trylock(&display_mutex) != 0) {
+            pthread_yield();
+            }
             if (ansitty_canvas_getdirty()) {
                 //printf("** CANVAS IS DIRTY ***\n");
                 ansitty_expose();
@@ -40,7 +42,6 @@ void *sysbus_videoupdate()
                 } 
             pthread_mutex_unlock(&display_mutex); 
             }
-        }
 }
 
 void *sysbus_clockfunction()
@@ -62,13 +63,14 @@ int sysbus_init()
     printf("System bus initialization ...\n");
     ansitty_init();
 
-    pthread_create( &clock_thread, NULL, sysbus_clockfunction, NULL);
-    pthread_create( &display_thread, NULL, sysbus_videoupdate, NULL);
 
     while (ptr[0] != '\0') {
         ansitty_putc(ptr[0]);
         ptr++;
     }
+
+    pthread_create( &clock_thread, NULL, sysbus_clockfunction, NULL);
+    pthread_create( &display_thread, NULL, sysbus_videoupdate, NULL);
 
     return 1;
 
@@ -155,11 +157,12 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         while (!c) {
             d = tty_processinput();
             //ansitty_expose();
-            usleep(2000);
+            //usleep(2000);
+            pthread_yield(); 
             c = tty_getbuflen();
         }
         d = tty_popkeybuf();
-        printf("Returning [%c]\n", d);
+        //printf("Returning [%c]\n", d);
         context->state.registers.byte[Z80_A] = d;
         return 1;
         break;
@@ -207,6 +210,7 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         
         while (pthread_mutex_trylock(&display_mutex) != 0) {
             //usleep(1000);
+            pthread_yield(); 
             }
             //printf("PUTC acquired lock\n");
             ansitty_putc(context->state.registers.byte[Z80_A]);
