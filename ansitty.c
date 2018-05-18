@@ -50,7 +50,8 @@ int ansitty_init()
     }
 
     gfx_sdl_main((width*8), (height*16), "z80p");
-    gfx_sdl_expose();
+    //gfx_sdl_expose();
+    canvas->is_dirty = true;
     return 0;
 
 }
@@ -77,7 +78,8 @@ int ansitty_scroll(ANSICanvas *canvas)
     canvas_reindex(canvas);
     gfx_sdl_clear();
     gfx_sdl_canvas_render(canvas, myfont);
-    gfx_sdl_expose();
+    //gfx_sdl_expose();
+    canvas->is_dirty = true; 
 //    assert(NULL);
     return 0;
 }
@@ -131,7 +133,8 @@ int ansitty_putc(unsigned char c)
             tty_x = current_x;
             tty_y = current_y;
             gfx_sdl_canvas_render_xy(canvas, myfont, last_x, last_y);
-            gfx_sdl_expose();
+            //gfx_sdl_expose();
+            canvas->is_dirty = true; 
             }
     }
 
@@ -178,7 +181,8 @@ int _ansitty_putc(unsigned char c)
         canvas_reindex(canvas);
         gfx_sdl_clear();
         gfx_sdl_canvas_render(canvas, myfont);
-        gfx_sdl_expose();
+        //gfx_sdl_expose();
+        canvas->is_dirty=true; 
     }
 
     if (tty_y >= height) {
@@ -207,7 +211,9 @@ int _ansitty_putc(unsigned char c)
     /* FIXME: this is incredibly slow. add a method to gfx_sdl just to update a particular byte or region */
     gfx_sdl_canvas_render_xy(canvas, myfont, tty_x, tty_y);
     //gfx_sdl_canvas_render(canvas, myfont);
-    gfx_sdl_expose();
+    //gfx_sdl_expose();
+    canvas->is_dirty = true; 
+
     tty_x ++;
     return 1;
 }
@@ -218,3 +224,14 @@ void ansitty_expose()
 
 }
 
+bool ansitty_canvas_getdirty()
+{
+    return canvas->is_dirty;
+
+}
+
+void ansitty_canvas_setdirty(bool state)
+{
+    canvas->is_dirty = state;
+
+}

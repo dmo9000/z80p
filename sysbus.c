@@ -18,7 +18,6 @@ uint16_t DMA = 0;
 uint32_t pos = 0;
 uint8_t rc = 0;
 volatile uint16_t clockticks = 0;
-pthread_t clock_thread;
 
 #define SECTOR_SIZE 128
 
@@ -26,6 +25,23 @@ char *banner = "Z80 REFERENCE PLATFORM V0.1\r\n\r\n";
 
 pthread_t clock_thread;
 pthread_t display_thread;
+pthread_mutex_t display_mutex;
+
+void *sysbus_videoupdate()
+{
+    printf("*** DISPLAY STARTED ***\n");
+    while (1) {
+        usleep(50000);
+        if (pthread_mutex_trylock(&display_mutex) == 0) {
+            if (ansitty_canvas_getdirty()) {
+                //printf("** CANVAS IS DIRTY ***\n");
+                ansitty_expose();
+                ansitty_canvas_setdirty(false);
+                } 
+            pthread_mutex_unlock(&display_mutex); 
+            }
+        }
+}
 
 void *sysbus_clockfunction()
 {
@@ -44,10 +60,11 @@ int sysbus_init()
 
     char *ptr = banner;
     printf("System bus initialization ...\n");
-    pthread_create( &clock_thread, NULL, sysbus_clockfunction, NULL);
-    //pthread_join(clock_thread, NULL); 
-
     ansitty_init();
+
+    pthread_create( &clock_thread, NULL, sysbus_clockfunction, NULL);
+    pthread_create( &display_thread, NULL, sysbus_videoupdate, NULL);
+
     while (ptr[0] != '\0') {
         ansitty_putc(ptr[0]);
         ptr++;
@@ -137,7 +154,7 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         c = tty_getbuflen();
         while (!c) {
             d = tty_processinput();
-            ansitty_expose();
+            //ansitty_expose();
             usleep(2000);
             c = tty_getbuflen();
         }
@@ -187,7 +204,14 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
     case 0x01:
         /* CONOUT */
         //printf("CONOUT->[%c]\n", context->state.registers.byte[Z80_A]);
-        ansitty_putc(context->state.registers.byte[Z80_A]);
+        
+        while (pthread_mutex_trylock(&display_mutex) != 0) {
+            //usleep(1000);
+            }
+            //printf("PUTC acquired lock\n");
+            ansitty_putc(context->state.registers.byte[Z80_A]);
+            pthread_mutex_unlock(&display_mutex); 
+            //printf("PUTC released lock\n");
         return 1;
         break;
     case 0x0A:
