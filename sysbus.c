@@ -93,6 +93,7 @@ void memory_dump(unsigned char *ptr, uint16_t addr, uint16_t size)
 int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
 {
     uint8_t c = 0;
+    uint8_t d = 0;
     //printf("     _Z80_INPUT_BYTE(0x%02X, %02X)\n", port, x);
     //fflush(NULL);
 
@@ -109,15 +110,16 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         return 1;
         break;
     case 0x01:
-        c = tty_processinput();
+        c = tty_getbuflen();
         while (!c) {
+            d = tty_processinput();
             ansitty_expose();
             usleep(2000);
-            c = tty_processinput();
+            c = tty_getbuflen();
         }
-        c = tty_popkeybuf();
-        // printf("Returning [%c]\n", c);
-        context->state.registers.byte[Z80_A] = c;
+        d = tty_popkeybuf();
+        printf("Returning [%c]\n", d);
+        context->state.registers.byte[Z80_A] = d;
         return 1;
         break;
     case 0x0E:

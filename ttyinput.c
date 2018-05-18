@@ -43,6 +43,11 @@ int tty_processinput()
         switch( event.type ) {
         case SDL_KEYDOWN:
             switch (key->keysym.scancode) {
+            case SDL_SCANCODE_BACKSPACE:
+                ascii_code = '\b';
+                goto do_character;
+                break;
+
             case SDL_SCANCODE_SPACE:
                 ascii_code = ' ';
                 goto do_character;
@@ -134,7 +139,7 @@ int tty_processinput()
             }
             printf("key->keysym.scancode = %u\n", key->keysym.scancode);
 do_character:
-            //printf("-> [%c]\n", ascii_code);
+            //printf("-> [%c][%02x]\n", ascii_code,ascii_code);
             /* append code to buffer if not overflowed */
             if (kbip <= KB_BUFSIZE) {
                 keybuf[kbip] = ascii_code;

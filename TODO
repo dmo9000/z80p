@@ -1,4 +1,6 @@
+* various missing ANSI code support in libansicanvas
+* cursor
 * batch screen updates (ie. don't update display after every character is output)
 * hardware clock interrupt
-* finish input handling
+* build on Windows
 
