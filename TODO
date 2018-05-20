@@ -1,3 +1,5 @@
+* only execute x cycles per second 
+* clean up leak in terminal scroll code
 * various missing ANSI code support in libansicanvas
 * cursor
 * batch screen updates (ie. don't update display after every character is output)

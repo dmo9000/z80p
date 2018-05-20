@@ -51,9 +51,9 @@ int ansitty_init()
         assert(r);
         raster_extend_length_to(r, 80);
         for (int j = 0; j < 80; j++) {
-            r->chardata[i] = 'z';
-            r->fgcolors[i] = 10;
-            r->bgcolors[i] = 2;
+            r->chardata[i] = ' ';
+            r->fgcolors[i] = 7;
+            r->bgcolors[i] = 0;
             }
     }
 
@@ -79,7 +79,26 @@ int ansitty_scroll(ANSICanvas *canvas)
     /* point start of list to new head */
     assert(canvas->first_raster);
     canvas->first_raster = n;
-    /* TODO: free old head, there is a memory leak here */
+    /* FIXME: TODO: free old head, there is a memory leak here */
+    /* TODO: move this to a ansi_raster_delete() function in libansicanvas */
+
+    assert(d->bytes);
+    assert(d->chardata);
+    assert(d->fgcolors);
+    assert(d->bgcolors);
+    assert(d->attribs);
+
+    free(d->chardata);
+    free(d->fgcolors);
+    free(d->bgcolors);
+    free(d->attribs);
+    d->chardata = NULL;
+    d->fgcolors = NULL;
+    d->bgcolors = NULL;
+    d->attribs = NULL;
+    d->bytes = 0;
+    free(d);
+
     canvas->lines --;
     //tty_y --;
     /* force refresh of entire canvas */
