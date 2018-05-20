@@ -54,7 +54,7 @@ int ansitty_init()
             r->chardata[i] = ' ';
             r->fgcolors[i] = 7;
             r->bgcolors[i] = 0;
-            }
+        }
     }
 
     gfx_sdl_main((width*8), (height*16), "z80p");
@@ -106,7 +106,7 @@ int ansitty_scroll(ANSICanvas *canvas)
     gfx_sdl_clear();
     gfx_sdl_canvas_render(canvas, myfont);
     //gfx_sdl_expose();
-    canvas->is_dirty = true; 
+    canvas->is_dirty = true;
     return 0;
 }
 
@@ -121,44 +121,44 @@ int ansitty_putc(unsigned char c)
     if (c == '\b') {
         if (current_x > 0) {
             current_x --;
-            } else {
+        } else {
             if (current_y > 0) {
                 current_x = 79;
                 current_y--;
-                } else {
+            } else {
                 printf("attempt to backspace off screen!\n");
                 assert(NULL);
-                }
             }
+        }
         tty_x = current_x;
         tty_y = current_y;
         return 0;
-        }
+    }
 
     /* check if output would cause a scroll before proceeding */
 
-        if (current_x > (width  - 1)) {
-            current_x = 0;
-            current_y ++;
-        }
+    if (current_x > (width  - 1)) {
+        current_x = 0;
+        current_y ++;
+    }
 
 //    if (c == '\n') {
-        //assert(current_y < (canvas->scroll_limit-1));
-        /* just scroll, and let libansicanvas handle the wrapping */
+    //assert(current_y < (canvas->scroll_limit-1));
+    /* just scroll, and let libansicanvas handle the wrapping */
 
-        if (current_y == height) {
-            ansitty_scroll(canvas);
-            current_y -= 1;
-        }
+    if (current_y == height) {
+        ansitty_scroll(canvas);
+        current_y -= 1;
+    }
 
-        tty_x = current_x;
-        tty_y = current_y;
+    tty_x = current_x;
+    tty_y = current_y;
 
 //    }
 
     //send_byte_to_canvas(canvas, c);
     last_x = current_x;
-    last_y = current_y; 
+    last_y = current_y;
     outbuffer[0] = c;
     if (!ansi_to_canvas(canvas, &outbuffer, 1, 0)) {
         printf("+++ error!\n");
@@ -181,8 +181,8 @@ int ansitty_putc(unsigned char c)
             tty_x = current_x;
             tty_y = current_y;
             gfx_sdl_canvas_render_xy(canvas, myfont, last_x, last_y);
-            canvas->is_dirty = true; 
-            }
+            canvas->is_dirty = true;
+        }
     }
 
     return 0;

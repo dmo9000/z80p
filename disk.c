@@ -8,6 +8,8 @@
 DiskDrive drives[MAX_DRIVES];
 DiskDrive *Current_Drive = NULL;
 
+extern int debuglevel;
+
 int disk_init()
 {
     off_t offset = 0;
@@ -80,7 +82,9 @@ DiskDrive *GetDriveReference(int id)
 
 int disk_readfromdrivetomemory(ZEXTEST *context, int driveid, uint16_t tgt_addr, off_t src_offset, uint16_t bytes)
 {
-    printf("disk_readfromdrivetomemory(0x%08lx, %u, 0x%04x, 0x%08lx, %u)\n", (long unsigned int) context->memory, driveid, (unsigned int) tgt_addr, src_offset, bytes);
+    if (debuglevel) {
+        printf("disk_readfromdrivetomemory(0x%08lx, %u, 0x%04x, 0x%08lx, %u)\n", (long unsigned int) context->memory, driveid, (unsigned int) tgt_addr, src_offset, bytes);
+    }
     /* ensure drive has valid size */
     assert(drives[driveid].size);
     /* ensure drive is present */
@@ -99,7 +103,9 @@ int disk_readfromdrivetomemory(ZEXTEST *context, int driveid, uint16_t tgt_addr,
 
 int disk_writefrommemorytodrive(ZEXTEST *context, int driveid, uint16_t src_addr, off_t tgt_addr, uint16_t bytes)
 {
-    printf("disk_writefrommemorytodrive(0x%08lx, %u, 0x%04x, 0x%08lx, %u)\n", (long unsigned int) context->memory, driveid, (unsigned int) src_addr, tgt_addr, bytes);
+    if (debuglevel) {
+        printf("disk_writefrommemorytodrive(0x%08lx, %u, 0x%04x, 0x%08lx, %u)\n", (long unsigned int) context->memory, driveid, (unsigned int) src_addr, tgt_addr, bytes);
+    }
     /* ensure drive has valid size */
     assert(drives[driveid].size);
     /* ensure drive is present */

@@ -63,7 +63,7 @@ int main (int argc, char *argv[])
         /* TODO: place into an execution thread that runs once a second */
         while (!context.is_done) {
             total += Z80Emulate(&context.state, CYCLES_PER_STEP, &context);
-    //        total += Z80Emulate(&context.state, 0, &context);
+            //        total += Z80Emulate(&context.state, 0, &context);
         }
 
     }

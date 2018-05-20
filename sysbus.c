@@ -28,6 +28,8 @@ pthread_t display_thread;
 pthread_t idle_thread;
 pthread_mutex_t display_mutex;
 
+int debuglevel = 0;
+
 void *sysbus_idle()
 {
 
@@ -35,7 +37,7 @@ void *sysbus_idle()
     while (1) {
         sleep(1);
         //printf("*** IDLE TICK ***\n");
-        }
+    }
 
 }
 
@@ -46,14 +48,14 @@ void *sysbus_videoupdate()
         usleep(50000);
         while (pthread_mutex_trylock(&display_mutex) != 0) {
             pthread_yield();
-            }
-            if (ansitty_canvas_getdirty()) {
-                //printf("** CANVAS IS DIRTY ***\n");
-                ansitty_expose();
-                ansitty_canvas_setdirty(false);
-                } 
-            pthread_mutex_unlock(&display_mutex); 
-            }
+        }
+        if (ansitty_canvas_getdirty()) {
+            //printf("** CANVAS IS DIRTY ***\n");
+            ansitty_expose();
+            ansitty_canvas_setdirty(false);
+        }
+        pthread_mutex_unlock(&display_mutex);
+    }
 }
 
 void *sysbus_clockfunction()
@@ -65,7 +67,7 @@ void *sysbus_clockfunction()
         //printf("TICK\n");
         clockticks++;
         usleep(20000);
-        }
+    }
 }
 
 int sysbus_init()
@@ -104,8 +106,10 @@ int sysbus_bootloader(ZEXTEST *context)
 
 int sysbus_ReadFromDriveToMemory(ZEXTEST *context, int driveid, uint16_t tgt_addr, off_t src_addr, uint16_t bytes)
 {
-    printf("sysbus_ReadFromDriveToMemory(driveid=%d, tgt_addr=0x%04x, src_addr=0x%08x, %u)\n",
-           driveid, tgt_addr, (unsigned int) src_addr, bytes);
+    if (debuglevel) {
+        printf("sysbus_ReadFromDriveToMemory(driveid=%d, tgt_addr=0x%04x, src_addr=0x%08x, %u)\n",
+               driveid, tgt_addr, (unsigned int) src_addr, bytes);
+    }
 
     disk_readfromdrivetomemory(context, driveid, tgt_addr, src_addr, bytes);
 
@@ -114,8 +118,10 @@ int sysbus_ReadFromDriveToMemory(ZEXTEST *context, int driveid, uint16_t tgt_add
 }
 int sysbus_WriteFromMemoryToDrive(ZEXTEST *context, int driveid, uint16_t src_addr, off_t tgt_addr, uint16_t bytes)
 {
-    printf("sysbus_ReadFromDriveToMemory(driveid=%d, tgt_addr=0x%04lx, src_addr=0x%08x, %u)\n",
-           driveid, tgt_addr, (unsigned int) src_addr, bytes);
+    if (debuglevel) {
+        printf("sysbus_ReadFromDriveToMemory(driveid=%d, tgt_addr=0x%04lx, src_addr=0x%08x, %u)\n",
+               driveid, tgt_addr, (unsigned int) src_addr, bytes);
+    }
 
     disk_writefrommemorytodrive(context, driveid, src_addr, tgt_addr, bytes);
     return 0;
@@ -171,7 +177,7 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
             d = tty_processinput();
             //ansitty_expose();
             //usleep(2000);
-            pthread_yield(); 
+            pthread_yield();
             c = tty_getbuflen();
         }
         d = tty_popkeybuf();
@@ -185,7 +191,9 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         assert(Selected_Drive);
         assert(Selected_Drive->io_in_progress);
         Selected_Drive->io_in_progress = false;
-        printf("    + RDWR_END: DMA=0x%04X reading/writing drive %u, track %u, sector %u\n", DMA, current_drive_id, Selected_Drive->selected_track, Selected_Drive->selected_sector);
+        if (debuglevel) {
+            printf("    + RDWR_END: DMA=0x%04X reading/writing drive %u, track %u, sector %u\n", DMA, current_drive_id, Selected_Drive->selected_track, Selected_Drive->selected_sector);
+        }
         context->state.registers.byte[Z80_A] = 0;
         return 0;
         break;
@@ -196,9 +204,9 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         return 0;
         break;
     case 0xF1:
-		context->state.registers.byte[Z80_A] = 0; /* SUCCESS */
-		context->state.registers.byte[Z80_H] = (clockticks & 0xff00) >> 8;
-		context->state.registers.byte[Z80_L] = (clockticks & 0x00ff);        
+        context->state.registers.byte[Z80_A] = 0; /* SUCCESS */
+        context->state.registers.byte[Z80_H] = (clockticks & 0xff00) >> 8;
+        context->state.registers.byte[Z80_L] = (clockticks & 0x00ff);
         return 0;
         break;
     default:
@@ -220,21 +228,23 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
     case 0x01:
         /* CONOUT */
         //printf("CONOUT->[%c]\n", context->state.registers.byte[Z80_A]);
-        
+
         while (pthread_mutex_trylock(&display_mutex) != 0) {
             //usleep(1000);
-            pthread_yield(); 
-            }
-            //printf("PUTC acquired lock\n");
-            ansitty_putc(context->state.registers.byte[Z80_A]);
-            pthread_mutex_unlock(&display_mutex); 
-            //printf("PUTC released lock\n");
+            pthread_yield();
+        }
+        //printf("PUTC acquired lock\n");
+        ansitty_putc(context->state.registers.byte[Z80_A]);
+        pthread_mutex_unlock(&display_mutex);
+        //printf("PUTC released lock\n");
         return 1;
         break;
     case 0x0A:
         /* SELDSK */
         current_drive_id = context->state.registers.byte[Z80_A];
-        printf("    + SELDSK selecting disk 0x%02x\n", current_drive_id);
+        if (debuglevel) {
+            printf("    + SELDSK selecting disk 0x%02x\n", current_drive_id);
+        }
         Selected_Drive = (DiskDrive *) GetDriveReference(current_drive_id);
         assert(Selected_Drive);
         return 1;
@@ -243,7 +253,9 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         /* SETTRK */
         Selected_Drive = (DiskDrive *) GetDriveReference(current_drive_id);
         assert(Selected_Drive);
-        printf("    + SETTRK selecting track %u/%u\n", context->state.registers.byte[Z80_A], Selected_Drive->num_tracks);
+        if (debuglevel) {
+            printf("    + SETTRK selecting track %u/%u\n", context->state.registers.byte[Z80_A], Selected_Drive->num_tracks);
+        }
         Selected_Drive->selected_track = context->state.registers.byte[Z80_A];
         return 1;
         break;
@@ -251,7 +263,9 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         /* SETSEC */
         Selected_Drive = (DiskDrive *) GetDriveReference(current_drive_id);
         assert(Selected_Drive);
-        printf("    + SETSEC selecting sector %u/%u\n", context->state.registers.byte[Z80_A], Selected_Drive->num_spt);
+        if (debuglevel) {
+            printf("    + SETSEC selecting sector %u/%u\n", context->state.registers.byte[Z80_A], Selected_Drive->num_spt);
+        }
         Selected_Drive->selected_sector = context->state.registers.byte[Z80_A];
         return 1;
         break;
@@ -267,14 +281,18 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         switch (context->state.registers.byte[Z80_A]) {
         case 0x00:
             /* READ OPERATION */
-            printf("    + READSEC_START: DMA=0x%04X reading drive %u, track %u, sector %u\n", DMA, current_drive_id, Selected_Drive->selected_track, Selected_Drive->selected_sector);
+            if (debuglevel) {
+                printf("    + READSEC_START: DMA=0x%04X reading drive %u, track %u, sector %u\n", DMA, current_drive_id, Selected_Drive->selected_track, Selected_Drive->selected_sector);
+            }
             Selected_Drive->io_in_progress = true;
             rc = sysbus_ReadFromDriveToMemory(context, current_drive_id, DMA, pos, SECTOR_SIZE);
             //memory_dump(context->memory + DMA, DMA, 128);
             break;
         case 0x01:
             /* WRITE OPERATION */
-            printf("    + WRITESEC_START: DMA=0x%04X writing drive %u, track %u, sector %u\n", DMA, current_drive_id, Selected_Drive->selected_track, Selected_Drive->selected_sector);
+            if (debuglevel) {
+                printf("    + WRITESEC_START: DMA=0x%04X writing drive %u, track %u, sector %u\n", DMA, current_drive_id, Selected_Drive->selected_track, Selected_Drive->selected_sector);
+            }
             Selected_Drive->io_in_progress = true;
             rc = sysbus_WriteFromMemoryToDrive(context, current_drive_id, DMA, pos, SECTOR_SIZE);
             break;
@@ -288,13 +306,17 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         break;
     case 0x0F:
         /* SETDMA (LO) */
-        printf("    + SETDMA (LO) set low byte 0x%02x\n",  context->state.registers.byte[Z80_A]);
+        if (debuglevel) {
+            printf("    + SETDMA (LO) set low byte 0x%02x\n",  context->state.registers.byte[Z80_A]);
+        }
         DMA = (DMA & 0xFF00) + (context->state.registers.byte[Z80_A]);
         return 1;
         break;
     case 0x10:
         /* SETDMA (HI) */
-        printf("    + SETDMA (HI) set high byte 0x%02x\n",  context->state.registers.byte[Z80_A]);
+        if (debuglevel) {
+            printf("    + SETDMA (HI) set high byte 0x%02x\n",  context->state.registers.byte[Z80_A]);
+        }
         DMA = (DMA & 0x00FF) + (context->state.registers.byte[Z80_A] * 0x100);
         return 1;
         break;
