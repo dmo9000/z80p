@@ -84,6 +84,18 @@ int tty_processinput()
                 }
 
                 switch (key->keysym.scancode) {
+                case SDL_SCANCODE_SLASH:
+                    ascii_code = '/';
+                    goto do_character;
+                    break;
+                case SDL_SCANCODE_APOSTROPHE:
+                    ascii_code = '\'';
+                    goto do_character;
+                    break;
+                case SDL_SCANCODE_MINUS:
+                    ascii_code = '-';
+                    goto do_character;
+                    break;
                 case SDL_SCANCODE_EQUALS:
                     ascii_code = '=';
                     goto do_character;
@@ -114,6 +126,18 @@ int tty_processinput()
                 }
 
                 switch (key->keysym.scancode) {
+                case SDL_SCANCODE_SLASH:
+                    ascii_code = '?';
+                    goto do_character;
+                    break;
+                case SDL_SCANCODE_APOSTROPHE:
+                    ascii_code = '\"';
+                    goto do_character;
+                    break;
+                case SDL_SCANCODE_MINUS:
+                    ascii_code = '_';
+                    goto do_character;
+                    break;
                 case SDL_SCANCODE_EQUALS:
                     ascii_code = '+';
                     goto do_character;

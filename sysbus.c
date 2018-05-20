@@ -34,7 +34,7 @@ void *sysbus_idle()
     printf("*** IDLE THREAD ***\n");
     while (1) {
         sleep(1);
-        printf("*** IDLE TICK ***\n");
+        //printf("*** IDLE TICK ***\n");
         }
 
 }
