@@ -1,9 +1,13 @@
+* update cpstest benchmark to measure non-scrolled vs scrolled performance
+* make cvi work, improve performance! 
+* network module
+* graphics module
+* improve terminal scroll speed (scroll optimization? dirty rectangles?)
 * ATTRIB_HALFINTENSITY output is probably not correct, cross reference with DOS+ANSI.SYS
-* only execute x cycles per second 
-* clean up leak in terminal scroll code
-* various missing ANSI code support in libansicanvas
+* only execute x cycles per second (fix bogomips)
+* various missing ANSI code support in libansicanvas (much done; need to test WordStar4)
 * cursor
 * batch screen updates (ie. don't update display after every character is output)
-* hardware clock interrupt
+* hardware clock interrupt (partially done; needs more testing)
 * build on Windows
-
+* sound module
