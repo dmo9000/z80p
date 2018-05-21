@@ -59,7 +59,6 @@ int tty_processinput()
                 break;
             case SDL_SCANCODE_LSHIFT:
             case SDL_SCANCODE_RSHIFT:
-                printf("[SHIFT_ON]\n");
                 shift_engaged = true;
                 return 0;
                 break;
@@ -178,7 +177,6 @@ do_character:
             switch (key->keysym.scancode) {
             case SDL_SCANCODE_LSHIFT:
             case SDL_SCANCODE_RSHIFT:
-                printf("[SHIFT_OFF]\n");
                 shift_engaged = false;
                 return 0;
                 break;
