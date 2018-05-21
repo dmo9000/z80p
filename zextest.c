@@ -29,6 +29,14 @@ ZEXTEST	context;
 double 	total;
 static void	emulate (char *filename);
 
+
+int run_emulation()
+{
+    //total += Z80Emulate(&context.state, CYCLES_PER_STEP, &context);
+    total += Z80Emulate(&context.state, Z80_CPU_SPEED * 10, &context);
+    return 0;
+}
+
 int main (int argc, char *argv[])
 {
     time_t	start, stop;
@@ -61,9 +69,10 @@ int main (int argc, char *argv[])
         sysbus_bootloader(&context);
 
         /* TODO: place into an execution thread that runs once a second */
-        while (!context.is_done) {
+        while (1) {
+    //    while (!context.is_done) {
             total += Z80Emulate(&context.state, CYCLES_PER_STEP, &context);
-            //        total += Z80Emulate(&context.state, 0, &context);
+           // usleep(1000);
         }
 
     }

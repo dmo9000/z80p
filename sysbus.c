@@ -32,11 +32,19 @@ int debuglevel = 0;
 
 void *sysbus_idle()
 {
-
+    time_t start_time = 0, current_time = 0, next_time = 0;
+    start_time = time(NULL); 
     printf("*** IDLE THREAD ***\n");
     while (1) {
-        sleep(1);
-        //printf("*** IDLE TICK ***\n");
+        run_emulation();
+        current_time = time(NULL);
+        next_time = current_time + 1;
+        while (current_time != next_time) {
+            current_time = time(NULL);
+            pthread_yield();
+            usleep(1000);
+        }
+    printf("*** IDLE TICK ***\n");
     }
 
 }
@@ -85,7 +93,7 @@ int sysbus_init()
 
     pthread_create( &clock_thread, NULL, sysbus_clockfunction, NULL);
     pthread_create( &display_thread, NULL, sysbus_videoupdate, NULL);
-    pthread_create( &idle_thread, NULL, sysbus_idle, NULL);
+    //pthread_create( &idle_thread, NULL, sysbus_idle, NULL);
 
     return 1;
 
@@ -172,13 +180,16 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         return 1;
         break;
     case 0x01:
+        printf("CONIN:\n");
         c = tty_getbuflen();
         while (!c) {
             d = tty_processinput();
-            //ansitty_expose();
-            //usleep(2000);
-            pthread_yield();
+            if (!d) {
+                usleep(20000);
+                pthread_yield();
+                } else {
             c = tty_getbuflen();
+            }
         }
         d = tty_popkeybuf();
         //printf("Returning [%c]\n", d);
@@ -223,6 +234,7 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
     //printf("    _Z80_OUTPUT_BYTE(0x%02X, %02X)\n", port, x);
     //((ZEXTEST *) context)->is_done = !0;
     //fflush(NULL);
+    //
 
     switch (port) {
     case 0x01:
