@@ -44,6 +44,7 @@ int ansitty_init()
     canvas->scroll_on_output = false;
     canvas->scroll_limit = height;
     canvas->cursor_enabled = true;
+    canvas->default_raster_length = 80;
 
     for (int i = 0; i <= 24; i++) {
         r = canvas_add_raster(canvas);
@@ -89,16 +90,7 @@ int ansitty_scroll(ANSICanvas *canvas)
     assert(d->bgcolors);
     assert(d->attribs);
 
-    free(d->chardata);
-    free(d->fgcolors);
-    free(d->bgcolors);
-    free(d->attribs);
-    d->chardata = NULL;
-    d->fgcolors = NULL;
-    d->bgcolors = NULL;
-    d->attribs = NULL;
-    d->bytes = 0;
-    free(d);
+    assert(raster_delete(d));
 
     canvas->lines --;
     //tty_y --;

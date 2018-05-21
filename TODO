@@ -1,3 +1,4 @@
+* ATTRIB_HALFINTENSITY output is probably not correct, cross reference with DOS+ANSI.SYS
 * only execute x cycles per second 
 * clean up leak in terminal scroll code
 * various missing ANSI code support in libansicanvas
