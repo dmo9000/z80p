@@ -43,6 +43,7 @@ int ansitty_init()
     canvas->repaint_entire_canvas = false;
     canvas->scroll_on_output = false;
     canvas->scroll_limit = height;
+    canvas->cursor_enabled = true;
 
     for (int i = 0; i <= 24; i++) {
         r = canvas_add_raster(canvas);
