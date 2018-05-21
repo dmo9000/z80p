@@ -169,10 +169,20 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
 
     switch (port) {
     case 0x00:
-        tty_processinput();
+        //printf("CONST:\n");
         c = tty_getbuflen();
         if (!c) {
-            context->state.registers.byte[Z80_A] = 0x00;
+            tty_processinput();
+            c = tty_getbuflen();
+            if (!c) {
+               usleep(2000);
+               //pthread_yield();
+               context->state.registers.byte[Z80_A] = 0x00;
+               } else {
+                    /* CONST - console status, return 0x00 if no character is ready, otherwise return 0xFF */
+                  context->state.registers.byte[Z80_A] = 0xff;
+
+                }
             return 1;
         }
         /* CONST - console status, return 0x00 if no character is ready, otherwise return 0xFF */
@@ -180,13 +190,13 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         return 1;
         break;
     case 0x01:
-    //    printf("CONIN:\n");
+        //printf("CONIN:\n");
         c = tty_getbuflen();
         while (!c) {
             d = tty_processinput();
             if (!d) {
-                usleep(20000);
-                pthread_yield();
+                usleep(2000);
+                //pthread_yield();
                 } else {
             c = tty_getbuflen();
             }
