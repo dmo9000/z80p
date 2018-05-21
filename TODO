@@ -1,4 +1,5 @@
 * update cpstest benchmark to measure non-scrolled vs scrolled performance
+* hardcode bmf font
 * make cvi work, improve performance! 
 * network module
 * graphics module
