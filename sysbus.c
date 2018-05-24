@@ -53,7 +53,7 @@ void *sysbus_videoupdate()
 {
     printf("*** DISPLAY STARTED ***\n");
     while (1) {
-        usleep(50000);
+        usleep(20000);
         while (pthread_mutex_trylock(&display_mutex) != 0) {
             pthread_yield();
         }
