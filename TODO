@@ -7,7 +7,6 @@
 * ATTRIB_HALFINTENSITY output is probably not correct, cross reference with DOS+ANSI.SYS
 * only execute x cycles per second (fix bogomips)
 * various missing ANSI code support in libansicanvas (much done; need to test WordStar4)
-* cursor
 * batch screen updates (ie. don't update display after every character is output)
 * hardware clock interrupt (partially done; needs more testing)
 * build on Windows
