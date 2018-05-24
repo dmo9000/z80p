@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
+#include "ansistate.h"
 #include "ansicanvas.h"
 #include "gfx_sdl.h"
 #include "bmf.h"
@@ -103,9 +104,23 @@ int ansitty_scroll(ANSICanvas *canvas)
     return 0;
 }
 
+int ansitty_drawcursor(bool state)
+{
+
+    switch (state) {
+        case true:
+            break;
+        case false:
+            break;
+        }
+
+    return 1;
+
+}
+
 int ansitty_putc(unsigned char c)
 {
-    char outbuffer[2];
+    unsigned char outbuffer[2];
     last_x = current_x;
     last_y = current_y;
 
@@ -153,7 +168,7 @@ int ansitty_putc(unsigned char c)
     last_x = current_x;
     last_y = current_y;
     outbuffer[0] = c;
-    if (!ansi_to_canvas(canvas, &outbuffer, 1, 0)) {
+    if (!ansi_to_canvas(canvas, (unsigned char *) &outbuffer, 1, 0)) {
         printf("+++ error!\n");
         assert(NULL);
     }

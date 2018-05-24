@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -32,8 +33,7 @@ int debuglevel = 0;
 
 void *sysbus_idle()
 {
-    time_t start_time = 0, current_time = 0, next_time = 0;
-    start_time = time(NULL); 
+    time_t current_time = 0, next_time = 0;
     printf("*** IDLE THREAD ***\n");
     while (1) {
         run_emulation();
