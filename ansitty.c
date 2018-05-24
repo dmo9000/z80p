@@ -127,6 +127,7 @@ int ansitty_putc(unsigned char c)
     if (!c) return 0;
 
     if (c == '\b') {
+        gfx_sdl_render_cursor(canvas, myfont, (tty_x % 80),  tty_y + (tty_x / 80), false);
         if (current_x > 0) {
             current_x --;
         } else {
@@ -140,6 +141,7 @@ int ansitty_putc(unsigned char c)
         }
         tty_x = current_x;
         tty_y = current_y;
+        gfx_sdl_render_cursor(canvas, myfont, (tty_x % 80),  tty_y + (tty_x / 80), true);
         return 0;
     }
 
@@ -161,6 +163,7 @@ int ansitty_putc(unsigned char c)
 
     tty_x = current_x;
     tty_y = current_y;
+    gfx_sdl_render_cursor(canvas, myfont, (tty_x % 80),  tty_y + (tty_x / 80), false);
 
 //    }
 
@@ -180,6 +183,7 @@ int ansitty_putc(unsigned char c)
     if (canvas->repaint_entire_canvas) {
         //printf("FULL CANVAS REFRESH\n");
         gfx_sdl_canvas_render(canvas, myfont);
+        gfx_sdl_render_cursor(canvas, myfont, (tty_x % 80),  tty_y + (tty_x / 80), true);
         canvas->repaint_entire_canvas = false;
         canvas->is_dirty = true;
     } else {
@@ -189,6 +193,7 @@ int ansitty_putc(unsigned char c)
             tty_x = current_x;
             tty_y = current_y;
             gfx_sdl_canvas_render_xy(canvas, myfont, last_x, last_y);
+            gfx_sdl_render_cursor(canvas, myfont, (tty_x % 80),  tty_y + (tty_x / 80), true);
             canvas->is_dirty = true;
         }
     }
