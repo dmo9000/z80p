@@ -61,7 +61,19 @@ int TCP_dispatch(ZEXTEST *context, uint16_t offset, uint16_t limit)
         break;
     case TCP_CLOSE:
         printf("TCP_CLOSE\n");
-        assert(NULL);
+        sockfd = DMA_BUF[1];
+        if (sockfd >= 0 && sockfd < MAX_SOCKETS) {
+            if (TCP_Sockets[sockfd].realfd != -1) {
+				context->memory[offset + 1] = 0;
+                /* FIXME: do shutdown() first? */
+				close(TCP_Sockets[sockfd].realfd);
+				TCP_Sockets[sockfd].realfd = -1;
+				TCP_Sockets[sockfd].mappedfd = -1;
+				return 0;
+            }
+        }
+        context->memory[offset + 1] = -1;
+        return -1;
         break;
     case TCP_SEND:
         //printf("TCP_SEND\n");
