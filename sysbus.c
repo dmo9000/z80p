@@ -30,6 +30,8 @@ pthread_t idle_thread;
 pthread_mutex_t display_mutex;
 
 int debuglevel = 0;
+bool hydrogen_enabled = true;
+
 
 void *sysbus_idle()
 {
@@ -210,8 +212,14 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         break;
     case 0xF0:
         printf("/* HYDROGEN BUS DETECTION! */\n");
-        context->state.registers.byte[Z80_A] = 0x21;
-        //context->state.registers.byte[Z80_A] = 0x00;
+        switch (hydrogen_enabled) {
+            case true:
+                context->state.registers.byte[Z80_A] = 0x21;
+                break;
+            case false:
+                context->state.registers.byte[Z80_A] = 0x00;
+                break;
+            }
         return 0;
         break;
     case 0xF1:

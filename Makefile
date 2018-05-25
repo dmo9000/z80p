@@ -23,5 +23,8 @@ dumpldr:
 	dd if=disks/drivea.dsk of=disks/bootldr.bin bs=1 count=256
 	z80dasm -t -a -l -g 0 disks/bootldr.bin | more
 
+getdisks:
+	cp /media/sf_OSZ/systems/df1a0966-a20a-47cd-a83a-a6c616cc550a/*.disk disks/
+
 clean:
 	rm -f *.o zextest maketables disks/bootldr.bin
