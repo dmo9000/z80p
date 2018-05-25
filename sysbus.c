@@ -351,7 +351,7 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         /* HYDROGEN CONTROLLER FUNCTIONS */
         switch(x) {
         case 0x36:
-            printf("HYDROGEN_CONTROLLER: NETWORK FUNCTION:\n");
+            //printf("HYDROGEN_CONTROLLER: NETWORK FUNCTION:\n");
             context->state.registers.byte[Z80_A] = TCP_dispatch(context, DMA, 128);
             break;
         default:

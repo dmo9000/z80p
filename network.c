@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <strings.h>
+#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -39,9 +40,11 @@ int TCP_dispatch(ZEXTEST *context, uint16_t offset, uint16_t limit)
     uint16_t portnum = 0;
     uint16_t ptr = 0;
     uint8_t len = 0;
+    int dataSize = 0;
+    int byteCount = 0;
     instruction = (uint8_t)DMA_BUF[0];
 
-    printf("TCP_Dispatch(0x%04x, %u)\n", offset, limit);
+    //printf("TCP_Dispatch(0x%04x, %u)\n", offset, limit);
 
     switch (instruction) {
     case TCP_CONNECT:
@@ -61,22 +64,49 @@ int TCP_dispatch(ZEXTEST *context, uint16_t offset, uint16_t limit)
         assert(NULL);
         break;
     case TCP_SEND:
-        printf("TCP_SEND\n");
-        assert(NULL);
-        break;
-    case TCP_RECV:
-        printf("TCP_RECV\n");
+        //printf("TCP_SEND\n");
         sockfd = DMA_BUF[1];
         ptr = DMA_BUF[2];
         ptr |= (DMA_BUF[3] << 8);
         len = DMA_BUF[4];
-        printf("+++ tcp_recv, sockfd = %d\n", sockfd);
+        //printf("+++ tcp_send, sockfd = %d, len = %u\n", sockfd, len);
         if (TCP_Sockets[sockfd].realfd == -1) {
             context->memory[offset + 1] = -1;
             return -1;
         }
+        byteCount = write(TCP_Sockets[sockfd].realfd, context->memory + ptr, len);
+        //printf("+++ sent %d bytes\n", byteCount);
+        //memory_dump(context->memory + ptr, 0, byteCount);
+        context->memory[offset + 1] = byteCount;
+        return byteCount;
+        break;
+    case TCP_RECV:
+        //printf("TCP_RECV\n");
+        sockfd = DMA_BUF[1];
+        ptr = DMA_BUF[2];
+        ptr |= (DMA_BUF[3] << 8);
+        len = DMA_BUF[4];
+        //printf("+++ tcp_recv, sockfd = %d, len = %u\n", sockfd, len);
+        if (TCP_Sockets[sockfd].realfd == -1) {
+            context->memory[offset + 1] = -1;
+            return -1;
+        }
+        ioctl(TCP_Sockets[sockfd].realfd, FIONREAD, &dataSize);
+        //printf("+++ %d bytes are available on socket\n", dataSize);
 
-        assert(NULL);
+        if (dataSize == 0) {
+            context->memory[offset + 1] = 0;
+            return 0;
+        }
+
+        if (dataSize < len) {
+            len = dataSize;
+        }
+        byteCount = read(TCP_Sockets[sockfd].realfd, context->memory + ptr, len);
+        //printf("+++ read %d bytes\n", byteCount);
+        //memory_dump(context->memory + ptr, 0, byteCount);
+        context->memory[offset + 1] = byteCount;
+        return byteCount;
         break;
     }
 
