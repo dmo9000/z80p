@@ -4,6 +4,8 @@
 * network module
 * graphics module
 * improve terminal scroll speed (scroll optimization? dirty rectangles?)
+    see: https://stackoverflow.com/questions/40682152/sdl2-converting-sdl1-2-code-in-c-how-to-scroll-a-window-previously-sdl-blitsur
+
 * ATTRIB_HALFINTENSITY output is probably not correct, cross reference with DOS+ANSI.SYS
 * only execute x cycles per second (fix bogomips)
 * various missing ANSI code support in libansicanvas (much done; need to test WordStar4)

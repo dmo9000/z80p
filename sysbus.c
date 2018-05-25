@@ -10,6 +10,7 @@
 #include "sysbus.h"
 #include "ansitty.h"
 #include "ttyinput.h"
+#include "network.h"
 #include "disk.h"
 
 
@@ -46,7 +47,7 @@ void *sysbus_idle()
             pthread_yield();
             usleep(1000);
         }
-    printf("*** IDLE TICK ***\n");
+        printf("*** IDLE TICK ***\n");
     }
 
 }
@@ -85,6 +86,12 @@ int sysbus_init()
 
     char *ptr = banner;
     printf("System bus initialization ...\n");
+
+    if (!TCP_init()) {
+        printf("couldn't initalize TCP\n");
+        assert(NULL);
+    }
+
     ansitty_init();
 
 
@@ -182,15 +189,15 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         return 1;
         break;
     case 0x01:
-    //    printf("CONIN:\n");
+        //    printf("CONIN:\n");
         c = tty_getbuflen();
         while (!c) {
             d = tty_processinput();
             if (!d) {
                 usleep(20000);
                 pthread_yield();
-                } else {
-            c = tty_getbuflen();
+            } else {
+                c = tty_getbuflen();
             }
         }
         d = tty_popkeybuf();
@@ -213,13 +220,13 @@ int _Z80_INPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
     case 0xF0:
         printf("/* HYDROGEN BUS DETECTION! */\n");
         switch (hydrogen_enabled) {
-            case true:
-                context->state.registers.byte[Z80_A] = 0x21;
-                break;
-            case false:
-                context->state.registers.byte[Z80_A] = 0x00;
-                break;
-            }
+        case true:
+            context->state.registers.byte[Z80_A] = 0x21;
+            break;
+        case false:
+            context->state.registers.byte[Z80_A] = 0x00;
+            break;
+        }
         return 0;
         break;
     case 0xF1:
@@ -339,6 +346,19 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
         }
         DMA = (DMA & 0x00FF) + (context->state.registers.byte[Z80_A] * 0x100);
         return 1;
+        break;
+    case 0xF0:
+        /* HYDROGEN CONTROLLER FUNCTIONS */
+        switch(x) {
+        case 0x36:
+            printf("HYDROGEN_CONTROLLER: NETWORK FUNCTION:\n");
+            context->state.registers.byte[Z80_A] = TCP_dispatch(context, DMA, 128);
+            break;
+        default:
+            printf("HYDROGEN_CONTROLLER: UNKNOWN FUNCTION\n");
+            assert(NULL);
+            break;
+        }
         break;
     default:
         printf("_Z80_OUTPUT_BYTE: UNHANDLED PORT: 0x%04x, 0x%02x\n", port, x);

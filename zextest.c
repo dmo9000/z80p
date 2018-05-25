@@ -70,9 +70,9 @@ int main (int argc, char *argv[])
 
         /* TODO: place into an execution thread that runs once a second */
         while (1) {
-    //    while (!context.is_done) {
+            //    while (!context.is_done) {
             total += Z80Emulate(&context.state, CYCLES_PER_STEP, &context);
-           // usleep(1000);
+            // usleep(1000);
         }
 
     }

@@ -97,9 +97,16 @@ int ansitty_scroll(ANSICanvas *canvas)
     //tty_y --;
     /* force refresh of entire canvas */
     canvas_reindex(canvas);
+
+//    SLOW METHOD
     gfx_sdl_clear();
     gfx_sdl_canvas_render(canvas, myfont);
-    //gfx_sdl_expose();
+
+
+//    FAST METHOD - not working
+//
+//    gfx_sdl_hwscroll();
+
     canvas->is_dirty = true;
     return 0;
 }
@@ -108,11 +115,11 @@ int ansitty_drawcursor(bool state)
 {
 
     switch (state) {
-        case true:
-            break;
-        case false:
-            break;
-        }
+    case true:
+        break;
+    case false:
+        break;
+    }
 
     return 1;
 
