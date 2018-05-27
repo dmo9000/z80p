@@ -355,7 +355,7 @@ int _Z80_OUTPUT_BYTE(ZEXTEST *context, uint16_t port, uint8_t x)
             context->state.registers.byte[Z80_A] = TCP_dispatch(context, DMA, 128);
             break;
         default:
-            printf("HYDROGEN_CONTROLLER: UNKNOWN FUNCTION\n");
+            printf("HYDROGEN_CONTROLLER: UNKNOWN FUNCTION %u (0x%02x) \n", x, x);
             assert(NULL);
             break;
         }
