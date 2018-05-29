@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 bool shift_engaged = false;
+bool ctrl_engaged = false;
 
 #define KB_BUFSIZE  80
 
@@ -62,6 +63,12 @@ int tty_processinput()
                 shift_engaged = true;
                 return 0;
                 break;
+            case SDL_SCANCODE_LCTRL:
+            case SDL_SCANCODE_RCTRL:
+                printf("[CTRL_ON]\n");
+                ctrl_engaged = true;
+                return 0;
+                break;
             case SDL_SCANCODE_ESCAPE:
                 printf("[ESC_ON]\n");
                 return 0;
@@ -69,6 +76,26 @@ int tty_processinput()
             default:
                 break;
             }
+
+            switch(ctrl_engaged) {
+                case true:
+                    printf("keystroke with CTRL engaged!\n");
+                    switch(key->keysym.scancode) {
+                        case SDL_SCANCODE_RIGHTBRACKET:
+                            printf("ctrl+rightbracket\n");
+                            ascii_code = 0x1D;
+                            goto do_character;
+                            break;
+                        default:
+                            printf("unknown control key\n");
+                            return 0;
+                            break;
+                        }
+                    break;
+                case false:
+                    break;
+                }
+
             switch (shift_engaged) {
             case false:
                 /* a-z */
@@ -178,6 +205,12 @@ do_character:
             case SDL_SCANCODE_LSHIFT:
             case SDL_SCANCODE_RSHIFT:
                 shift_engaged = false;
+                return 0;
+                break;
+            case SDL_SCANCODE_LCTRL:
+            case SDL_SCANCODE_RCTRL:
+                printf("[CTRL_OFF]\n");
+                ctrl_engaged = false;
                 return 0;
                 break;
             case SDL_SCANCODE_ESCAPE:

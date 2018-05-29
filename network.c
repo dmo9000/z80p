@@ -93,6 +93,7 @@ int TCP_dispatch(ZEXTEST *context, uint16_t offset, uint16_t limit)
             perror("write");
             if (errno == EPIPE) {
                 printf("+++ transport endpoint is not connected\n");
+                context->memory[offset + 1] = -1;
                 return -1;
                 }
             assert(NULL);
