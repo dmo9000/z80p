@@ -11,6 +11,8 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/tcp.h>
+#include <signal.h>
+#include <errno.h>
 #include "zextest.h"
 #include "network.h"
 
@@ -87,6 +89,14 @@ int TCP_dispatch(ZEXTEST *context, uint16_t offset, uint16_t limit)
             return -1;
         }
         byteCount = write(TCP_Sockets[sockfd].realfd, context->memory + ptr, len);
+        if (byteCount != len) {
+            perror("write");
+            if (errno == EPIPE) {
+                printf("+++ transport endpoint is not connected\n");
+                return -1;
+                }
+            assert(NULL);
+            }
         //printf("+++ sent %d bytes\n", byteCount);
         //memory_dump(context->memory + ptr, 0, byteCount);
         context->memory[offset + 1] = byteCount;
@@ -135,6 +145,7 @@ int TCP_Connect(uint8_t o1, uint8_t o2, uint8_t o3, uint8_t o4, uint16_t portnum
     int status = -1;
     int synRetries = 1; // Send a total of 3 SYN packets => Timeout ~7s
     int i = 0;
+    struct sigaction new_actn, old_actn;
 
     printf("TCP_Connect(%u.%u.%u.%u, %u)\n", o1, o2, o3, o4, portnum);
     newfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -165,6 +176,16 @@ int TCP_Connect(uint8_t o1, uint8_t o2, uint8_t o3, uint8_t o4, uint16_t portnum
             TCP_Sockets[i].realfd = newfd;
             TCP_Sockets[i].mappedfd = i;
             printf("return socket %d\n", TCP_Sockets[i].mappedfd);
+
+            /* ignore SIGPIPE, so that read/write can catch transport endpoint errors directly */
+            
+            new_actn.sa_handler = SIG_IGN;
+            sigemptyset (&new_actn.sa_mask);
+            new_actn.sa_flags = 0;
+            sigaction (SIGPIPE, &new_actn, &old_actn);
+
+
+
             return TCP_Sockets[i].mappedfd;
         }
 
