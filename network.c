@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include <strings.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -13,6 +14,7 @@
 #include <netinet/tcp.h>
 #include <signal.h>
 #include <errno.h>
+#include <fcntl.h>
 #include "zextest.h"
 #include "network.h"
 
@@ -86,14 +88,16 @@ int TCP_dispatch(ZEXTEST *context, uint16_t offset, uint16_t limit)
         //printf("+++ tcp_send, sockfd = %d, len = %u\n", sockfd, len);
         if (TCP_Sockets[sockfd].realfd == -1) {
             context->memory[offset + 1] = -1;
+            context->memory[offset + 2] = EBADF;
             return -1;
         }
         byteCount = write(TCP_Sockets[sockfd].realfd, context->memory + ptr, len);
-        if (byteCount != len) {
+        if (byteCount == -1) {
             perror("write");
             if (errno == EPIPE) {
-                printf("+++ transport endpoint is not connected\n");
+                printf("+++ write:transport endpoint is not connected\n");
                 context->memory[offset + 1] = -1;
+                context->memory[offset + 2] = EPIPE;
                 return -1;
                 }
             assert(NULL);
@@ -101,6 +105,7 @@ int TCP_dispatch(ZEXTEST *context, uint16_t offset, uint16_t limit)
         //printf("+++ sent %d bytes\n", byteCount);
         //memory_dump(context->memory + ptr, 0, byteCount);
         context->memory[offset + 1] = byteCount;
+        context->memory[offset + 2] = 0;
         return byteCount;
         break;
     case TCP_RECV:
@@ -112,23 +117,46 @@ int TCP_dispatch(ZEXTEST *context, uint16_t offset, uint16_t limit)
         //printf("+++ tcp_recv, sockfd = %d, len = %u\n", sockfd, len);
         if (TCP_Sockets[sockfd].realfd == -1) {
             context->memory[offset + 1] = -1;
+            context->memory[offset + 2] = EBADF;
             return -1;
         }
+        /*
         ioctl(TCP_Sockets[sockfd].realfd, FIONREAD, &dataSize);
         //printf("+++ %d bytes are available on socket\n", dataSize);
 
         if (dataSize == 0) {
             context->memory[offset + 1] = 0;
+            context->memory[offset + 2] = 0;
             return 0;
         }
 
         if (dataSize < len) {
             len = dataSize;
         }
+        */
+
         byteCount = read(TCP_Sockets[sockfd].realfd, context->memory + ptr, len);
-        //printf("+++ read %d bytes\n", byteCount);
+    //    printf("+++ read %d bytes\n", byteCount);
         //memory_dump(context->memory + ptr, 0, byteCount);
+       
+        if (byteCount == -1) {
+   //         perror("read");
+   //         printf("errno = %d, %s\n", errno, strerror(errno));
+            context->memory[offset + 1] = -1;
+            context->memory[offset + 2] = errno;
+
+            if (errno == EPIPE) {
+                printf("+++ read:transport endpoint is not connected\n");
+                context->memory[offset + 1] = -1;
+                context->memory[offset + 2] = EPIPE;
+                return -1;
+                }
+
+            return -1;
+            }
+        
         context->memory[offset + 1] = byteCount;
+        context->memory[offset + 2] = 0;
         return byteCount;
         break;
     }
@@ -146,6 +174,7 @@ int TCP_Connect(uint8_t o1, uint8_t o2, uint8_t o3, uint8_t o4, uint16_t portnum
     int status = -1;
     int synRetries = 1; // Send a total of 3 SYN packets => Timeout ~7s
     int i = 0;
+    int flags = 0;
     struct sigaction new_actn, old_actn;
 
     printf("TCP_Connect(%u.%u.%u.%u, %u)\n", o1, o2, o3, o4, portnum);
@@ -170,7 +199,12 @@ int TCP_Connect(uint8_t o1, uint8_t o2, uint8_t o3, uint8_t o4, uint16_t portnum
     if (status < 0) {
         printf("CONNECT FAILED\n");
         return -1;
+    } else {
+        printf("CONNECT OK\n");
     }
+
+    flags = fcntl(newfd, F_GETFL, 0);
+    fcntl(newfd, F_SETFL, flags | O_NONBLOCK);
 
     for (i = 3; i < MAX_SOCKETS; i++) {
         if (TCP_Sockets[i].realfd == -1) {
