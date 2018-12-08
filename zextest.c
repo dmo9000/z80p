@@ -42,6 +42,8 @@ int main (int argc, char *argv[])
     time_t	start, stop;
     int i = 1;
 
+
+
     if (!sysbus_init()) {
         printf("error initializing system bus\n");
         assert(NULL);

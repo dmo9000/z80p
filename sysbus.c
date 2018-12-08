@@ -93,6 +93,7 @@ int sysbus_init()
     }
 
     ansitty_init();
+		sleep(1);
 
 
     while (ptr[0] != '\0') {

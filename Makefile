@@ -14,10 +14,12 @@ z80emu.o: z80emu.c z80emu.h z80config.h z80user.h \
 zextest.o: zextest.c zextest.h z80emu.h z80config.h
 	$(CC) -Wall -c $<
 
-OBJECT_FILES = zextest.o z80emu.o sysbus.o ansitty.o disk.o ttyinput.o network.o 
+#OBJECT_FILES = zextest.o z80emu.o sysbus.o disk.o ttyinput.o network.o 
+OBJECT_FILES = zextest.o z80emu.o sysbus.o disk.o network.o ansitty.o 
+
 
 zextest: $(OBJECT_FILES)
-	$(CC) -g -ggdb -pthread -L/usr/lib64 -L/usr/lib $(OBJECT_FILES) -L/usr/lib -lansicanvas -lansisdlcanvas -lSDL2 -lm -o $@
+	$(CC) -g -ggdb -lGL -lGLU -lglut -lm -pthread -L/usr/lib64 -L/usr/lib $(OBJECT_FILES) -L/usr/lib ../ansiutils/gfx_opengl.o ../ansiutils/bmf.o ../ansiutils/libansicanvas.a -lm -o $@
 
 dumpldr:
 	dd if=disks/drivea.dsk of=disks/bootldr.bin bs=1 count=256
