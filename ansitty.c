@@ -29,9 +29,11 @@ void sysbus_rungraphics()
 
     printf("sysbus_rungraphics()\r\n");
     fflush(NULL);
-//    gfx_opengl_main(640, 384, "68K");
-    gfx_opengl_main(gfx_opengl_getwidth(), gfx_opengl_getheight(), 2, "68K");
-    while (1) { }
+    gfx_opengl_main(canvas, gfx_opengl_getwidth(), gfx_opengl_getheight(), 2, "68K");
+    while (1) {
+        sleep(1);
+        //pthread_yield();
+    }
 }
 
 
@@ -151,7 +153,7 @@ int ansitty_putc(unsigned char c)
     last_x = current_x;
     last_y = current_y;
 
-		//printf("ansitty_putc(%c)\n", c);
+    //printf("ansitty_putc(%c)\n", c);
 
     if (!c) return 0;
 
@@ -220,7 +222,10 @@ int ansitty_putc(unsigned char c)
     if (!ansi_to_canvas(canvas, (unsigned char *) &outbuffer, 1, 0)) {
         printf("+++ error!\n");
         //assert(NULL);
+    } else {
+        canvas->is_dirty=true;
     }
+
     tty_x = current_x;
     tty_y = current_y;
 
