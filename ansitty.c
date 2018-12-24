@@ -20,19 +20,33 @@ extern uint16_t current_x;
 extern uint16_t current_y;
 uint16_t last_x;
 uint16_t last_y;
-
 extern bool allow_clear;
+bool cursor_phase = false;
+
+extern int process_fd;
 pthread_t graphics_thread;
+
+/* maximum length of a single ANSI sequence */
+#define MAX_SEQUENCE		sizeof(uint8_t)
+
+int ansitty_set_process_fd(int fd)
+{
+    printf("ansitty_set_process_fd(%d)\n", fd);
+    process_fd = fd;
+    return 1;
+}
 
 void sysbus_rungraphics()
 {
 
     printf("sysbus_rungraphics()\r\n");
     fflush(NULL);
-    gfx_opengl_main(canvas, gfx_opengl_getwidth(), gfx_opengl_getheight(), 2, "68K");
+    /* MULTIPLIER SET HERE */
+    gfx_opengl_main(canvas, gfx_opengl_getwidth(), gfx_opengl_getheight(), 1, "8btty");
     while (1) {
-        sleep(1);
-        //pthread_yield();
+        /* don't busy wait */
+        pthread_yield();
+        usleep(10000);
     }
 }
 
@@ -49,6 +63,7 @@ int ansitty_init()
         perror("bmf_load");
         exit(1);
     }
+    fflush(NULL);
 
     allow_clear = true;
 
@@ -80,10 +95,6 @@ int ansitty_init()
 
     pthread_create( &graphics_thread, NULL, sysbus_rungraphics, NULL);
 
-
-    //gfx_opengl_main((width*8), (height*16), "68000");
-    //gfx_opengl_expose();
-    canvas->is_dirty = true;
     return 0;
 
 }
@@ -120,17 +131,16 @@ int ansitty_scroll(ANSICanvas *canvas)
     /* force refresh of entire canvas */
     canvas_reindex(canvas);
 
-//    SLOW METHOD
-//    gfx_opengl_clear();
-//    gfx_opengl_canvas_render(canvas, myfont);
-
-
-//    FAST METHOD - not working
-//
     gfx_opengl_hwscroll();
 
     canvas->is_dirty = true;
     return 0;
+}
+
+void ansitty_setcursorphase(bool state)
+{
+    cursor_phase = state;
+    return;
 }
 
 int ansitty_drawcursor(bool state)
@@ -147,13 +157,28 @@ int ansitty_drawcursor(bool state)
 
 }
 
+int ansitty_updatecursor()
+{
+
+    if (canvas->cursor_enabled) {
+        if (cursor_phase) {
+            gfx_opengl_render_cursor(canvas, myfont, current_x,  current_y, true);
+            canvas->is_dirty = true;
+        } else {
+            gfx_opengl_render_cursor(canvas, myfont, current_x,  current_y, false);
+            canvas->is_dirty = true;
+        }
+    }
+    return 1;
+}
+
 int ansitty_putc(unsigned char c)
 {
     unsigned char outbuffer[2];
     last_x = current_x;
     last_y = current_y;
 
-    //printf("ansitty_putc(%c)\n", c);
+    //fprintf(stderr, "ansitty_putc(%c)\n", c);
 
     if (!c) return 0;
 
@@ -162,7 +187,6 @@ int ansitty_putc(unsigned char c)
         if ((current_x % TAB_WIDTH)) {
             gfx_opengl_render_cursor(canvas, myfont, (current_x % 80),  current_y + (current_x / 80), false);
             current_x += (TAB_WIDTH- (current_x % TAB_WIDTH));
-            //gfx_opengl_render_cursor(canvas, myfont, (tty_x % 80),  tty_y + (tty_x / 80), false);
             return 0;
         }
     }
@@ -222,17 +246,14 @@ int ansitty_putc(unsigned char c)
     if (!ansi_to_canvas(canvas, (unsigned char *) &outbuffer, 1, 0)) {
         printf("+++ error!\n");
         //assert(NULL);
-    } else {
-        canvas->is_dirty=true;
     }
-
     tty_x = current_x;
     tty_y = current_y;
 
     /* TODO: repaint damaged region only */
 
     if (canvas->repaint_entire_canvas) {
-        printf("FULL CANVAS REFRESH\n");
+        //printf("FULL CANVAS REFRESH\n");
         gfx_opengl_canvas_render(canvas, myfont);
         if ((tty_y + (tty_x / 80) < canvas->lines)) {
             gfx_opengl_render_cursor(canvas, myfont, (tty_x % 80),  tty_y + (tty_x / 80), true);
@@ -244,7 +265,7 @@ int ansitty_putc(unsigned char c)
         if (tty_y > canvas->scroll_limit) {
             ansitty_scroll(canvas);
             tty_y = canvas->scroll_limit;
-            printf("regular_output: tty_y(%u) > canvas->scroll_limit(%u)\r\n", tty_y, canvas->scroll_limit);
+            //printf("regular_output: tty_y(%u) > canvas->scroll_limit(%u)\r\n", tty_y, canvas->scroll_limit);
             assert(tty_y <= canvas->scroll_limit);
         }
         // assert(tty_y <= canvas->scroll_limit);
